@@ -1,0 +1,9 @@
+{"total_size": 1, "start": 0, "next_collection_link":
+"http://api.apitest.lab:81/0.1/accounts?ws.start=20&ws.size=20", "entries":
+[{"http_etag":
+"\"c70dfb07dc67c9dd6a8bc01130acf68d1fbf035f-ca5feee2b7fbb6febfca8af5541541ea960aaedb\"",
+"vendor_accounts_collection_link":
+"http://api.apitest.lab:81/0.1/accounts/910/vendor_accounts",
+"lists_collection_link": "http://api.apitest.lab:81/0.1/accounts/910/lists",
+"self_link": "http://api.apitest.lab:81/0.1/accounts/910",
+"resource_type_link": "http://api.apitest.lab:81/0.1/#account", "id": 910}], "resource_type_link" : "http://api.apitest.lab:81/0.1/#accounts"}
