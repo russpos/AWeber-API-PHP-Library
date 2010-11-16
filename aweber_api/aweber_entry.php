@@ -73,7 +73,7 @@ class AWeberEntry extends AWeberResponse {
         if (in_array($value, $this->_privateData)) {
             return null;
         }
-        if (array_key_exists($value, $this->data)) {
+        if (!empty($this->data) && array_key_exists($value, $this->data)) {
             return $this->data[$value];
         }
         if ($value == 'type') return $this->_type();

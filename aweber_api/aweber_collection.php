@@ -41,11 +41,15 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * @return void
      */
     protected function _getPageParams($start=0, $size=20) {
-        $params = array(
-            'ws.start' => $start,
-            'ws.size'  => $size,
-        );
-        ksort($params);
+        if ($start > 0) {
+            $params = array(
+                'ws.start' => $start,
+                'ws.size'  => $size,
+            );
+            ksort($params);
+        } else {
+            $params = array();
+        }
         return $params;
     }
 
@@ -65,6 +69,28 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
     }
 
     /**
+     * _calculatePageSize
+     *
+     * Calculates the page size of this collection based on the data in the 
+     * next and prev links.
+     *
+     * @access protected
+     * @return integer
+     */
+    protected function _calculatePageSize() {
+        if (isset($this->data['next_collection_link'])) {
+            $url = $this->data['next_collection_link'];
+            $urlParts = parse_url($url);
+            if (empty($urlParts['query'])) return $this->pageSize;
+            $query = array();
+            parse_str($urlParts['query'], $query);
+            if (empty($query['ws_size'])) return $this->pageSize;
+            $this->pageSize = $query['ws_size'];
+        }
+        return $this->pageSize;
+    }
+
+    /**
      * _loadPageForOffset
      * 
      * Makes a request for an additional page of entries, based on the given 
@@ -77,6 +103,7 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * @return void
      */
     protected function _loadPageForOffset($offset, $attempt=1) {
+        $this->_calculatePageSize();
         $start = round($offset / $this->pageSize) * $this->pageSize;
         $params = $this->_getPageParams($start, $this->pageSize);
 
