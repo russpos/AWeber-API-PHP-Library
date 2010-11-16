@@ -83,6 +83,68 @@ class AWeberEntry extends AWeberResponse {
         throw new AWeberResourceNotImplemented($this, $value);
     }
 
+
+    /**
+     * getWebForms
+     *
+     * Gets all web_forms for this account
+     * @access public
+     * @return array
+     */
+    public function getWebForms() {
+        $this->_methodFor(array('account'));
+        $data = $this->adapter->request('GET', $this->url.'?ws.op=getWebForms');
+        return $this->_parseNamedOperation($data);
+    }
+
+
+    /**
+     * getWebFormSplitTests
+     *
+     * Gets all web_form split tests for this account
+     * @access public
+     * @return array
+     */
+    public function getWebFormSplitTests() {
+        $this->_methodFor(array('account'));
+        $data = $this->adapter->request('GET', $this->url.'?ws.op=getWebFormSplitTests');
+        return $this->_parseNamedOperation($data);
+    }
+
+    /**
+     * _parseNamedOperation
+     *
+     * Turns a dumb array of json into an array of Entries.  This is NOT 
+     * a collection, but simply an array of entries, as returned from a
+     * named operation.
+     *
+     * @param array $data 
+     * @access protected
+     * @return array
+     */
+    protected function _parseNamedOperation($data) {
+        $results = array();
+        foreach($data as $entryData) {
+            $results[] = new AWeberEntry($entryData, str_replace($this->adapter->app->getBaseUri(), '',
+               $entryData['self_link']), $this->adapter); 
+        }
+        return $results;
+    }
+
+    /**
+     * _methodFor
+     *
+     * Raises exception if $this->type is not in array entryTypes.
+     * Used to restrict methods to specific entry type(s).
+     * @param mixed $entryTypes Array of entry types as strings, ie array('account')
+     * @access protected
+     * @return void
+     */
+    protected function _methodFor($entryTypes) {
+        if (in_array($this->type, $entryTypes)) return true;
+        throw new AWeberMethodNotImplemented($this);
+    }
+
     /**
      * _getCollection 
      *

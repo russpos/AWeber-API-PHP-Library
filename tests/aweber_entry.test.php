@@ -13,7 +13,7 @@ class TestAWeberEntry extends UnitTestCase {
         $url = '/accounts/1/lists/303449';
         $data = $this->adapter->request('GET', $url);
         $this->entry = new AWeberEntry($data, $url, $this->adapter);
-    } 
+    }
 
     /**
      * Should be an AWeberEntry
@@ -98,3 +98,50 @@ class TestAWeberEntry extends UnitTestCase {
 
     }
 }
+
+/**
+ * TestAWeberAccountEntry
+ *
+ * Account entries have a handful of special named operations. This asserts
+ * that they behave as expected.
+ *
+ * @uses UnitTestCase
+ * @package 
+ * @version $id$
+ */
+class TestAWeberAccountEntry extends UnitTestCase {
+
+    public function setUp() {
+        $this->adapter = new MockOAuthAdapter();
+        $this->adapter->app = new AWeberServiceProvider();
+        $url = '/accounts/1';
+        $data = $this->adapter->request('GET', $url);
+        $this->entry = new AWeberEntry($data, $url, $this->adapter);
+        $this->data = $this->entry->getWebForms();
+    }
+
+    public function testIsAccount() {
+        $this->assertEqual($this->entry->type, 'account');
+    }
+
+    public function testShouldReturnArray() {
+        $this->assertTrue(is_array($this->data));
+    }
+
+    public function testShouldHaveCorrectCountOfEntries() {
+        $this->assertEqual(sizeOf($this->data), 23);
+    }
+
+    public function testShouldHaveEntries() {
+        foreach($this->data as $entry) {
+            $this->assertTrue(is_a($entry, 'AWeberEntry'));
+        }
+    }
+
+    public function testShouldHaveFullURL() {
+        foreach($this->data as $entry) {
+            $this->assertTrue(preg_match('/^\/accounts\/1\/lists\/[0-9]*\/web_forms\/[0-9]*$/', $entry->url));
+        }
+    }
+}
+

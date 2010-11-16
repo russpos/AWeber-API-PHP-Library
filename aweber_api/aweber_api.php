@@ -104,6 +104,10 @@ class AWeberAPIBase {
         }
     }
 
+    protected function _cleanUrl($url) {
+        return str_replace($this->adapter->app->getBaseUri(), '', $url);
+    }
+
     /**
      * readResponse
      *

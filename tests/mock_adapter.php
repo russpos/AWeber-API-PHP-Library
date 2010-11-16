@@ -6,7 +6,9 @@ class MockOAuthAdapter extends OAuthApplication {
 
     protected $requests = array(
         '/accounts'                                => 'accounts',
+        '/accounts/1'                              => 'account',
         '/accounts/1/lists'                        => 'lists',
+        '/accounts/1?ws.op=getWebForms'            => 'web_forms',
         '/accounts/910/lists'                      => 'lists',
         '/accounts/1/lists?ws.size=20&ws.start=20' => 'lists_page2',
         '/accounts/1/lists/303449'                 => 'lists/303449',
