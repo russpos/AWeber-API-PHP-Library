@@ -93,7 +93,8 @@ class AWeberEntry extends AWeberResponse {
      */
     public function getWebForms() {
         $this->_methodFor(array('account'));
-        $data = $this->adapter->request('GET', $this->url.'?ws.op=getWebForms');
+        $data = $this->adapter->request('GET', $this->url.'?ws.op=getWebForms', array(),
+            array('allow_empty' => true));
         return $this->_parseNamedOperation($data);
     }
 
@@ -107,7 +108,8 @@ class AWeberEntry extends AWeberResponse {
      */
     public function getWebFormSplitTests() {
         $this->_methodFor(array('account'));
-        $data = $this->adapter->request('GET', $this->url.'?ws.op=getWebFormSplitTests');
+        $data = $this->adapter->request('GET', $this->url.'?ws.op=getWebFormSplitTests', array(),
+            array('allow_empty' => true));
         return $this->_parseNamedOperation($data);
     }
 

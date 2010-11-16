@@ -99,17 +99,18 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @param mixed $method
      * @param mixed $uri
      * @param array $data
+     * @param array $options
      * @access public
      * @return void
      */
-    public function request($method, $uri, $data = array()) {
+    public function request($method, $uri, $data = array(), $options = array()) {
         $url = $this->app->getBaseUri() . $uri;
         $response = $this->makeRequest($method, $url, $data);
         if (!$response) {
             throw new AWeberResponseError($uri);
         }
         $data = json_decode($response->body, true);
-        if (empty($data)) {
+        if (empty($options['allow_empty']) && empty($data)) {
             throw new AWeberResponseError($uri);
         }
         return $data;
