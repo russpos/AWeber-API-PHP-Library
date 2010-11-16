@@ -8,7 +8,7 @@ class MockOAuthAdapter extends OAuthApplication {
         '/accounts'                                => 'accounts',
         '/accounts/1/lists'                        => 'lists',
         '/accounts/910/lists'                      => 'lists',
-        '/accounts/1/lists?ws.size=10&ws.start=20' => 'lists_page2',
+        '/accounts/1/lists?ws.size=20&ws.start=20' => 'lists_page2',
         '/accounts/1/lists/303449'                 => 'lists/303449',
         '/accounts/910/lists/123456'               => 'error',
         '/accounts/1/lists/303449/campaigns'       => 'lists/303449/campaigns',
