@@ -1,7 +1,7 @@
 <?php
 class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, Countable {
 
-    protected $pageSize = 10;
+    protected $pageSize = 100;
     protected $_entries = array();
 
     /**
