@@ -95,8 +95,89 @@ class TestAWeberEntry extends UnitTestCase {
                 'web_form_split_tests' => 'collection',
             )
         );
-
     }
+
+    /**
+     * Should be able to delete an entry, and it will send a DELETE request to the
+     * API servers to its URL
+     */
+    public function testDelete() {
+        $this->adapter->clearRequests();
+        $resp = $this->entry->delete();
+        $this->assertIdentical($resp, true);
+        $this->assertEqual(sizeOf($this->adapter->requestsMade), 1);
+        $this->assertEqual($this->adapter->requestsMade[0]['method'], 'DELETE');
+        $this->assertEqual($this->adapter->requestsMade[0]['uri'], $this->entry->url);
+    }
+
+    /**
+     * When delete returns a non-200 status code, the delete failed and false is
+     * returned.
+     */
+    public function testFailedDelete() {
+        $url = '/accounts/1';
+        $data = $this->adapter->request('GET', $url);
+        $entry = new AWeberEntry($data, $url, $this->adapter);
+
+        // Can't delete account
+        $resp = $entry->delete();
+        $this->assertIdentical($resp, false);
+    }
+
+    /**
+     *  Should be able to change a property in an entry's data array directly on
+     *  the object, and have that change propogate to its data array
+     *  
+     */
+    public function testSet() {
+        $this->assertNotEqual($this->entry->name, 'mynewlistname');
+        $this->assertNotEqual($this->entry->data['name'], 'mynewlistname');
+        $this->entry->name = 'mynewlistname';
+        $this->assertEqual($this->entry->name, 'mynewlistname');
+        $this->assertEqual($this->entry->data['name'], 'mynewlistname');
+    }
+
+    /**
+     * Should make a request when a save is made.
+     */
+    public function testSave() {
+        $this->entry->name = 'mynewlistname';
+        $this->adapter->clearRequests();
+        $resp = $this->entry->save();
+        $this->assertEqual(sizeOf($this->adapter->requestsMade), 1);
+        $req = $this->adapter->requestsMade[0];
+        $this->assertEqual($req['method'], 'PATCH');
+        $this->assertEqual($req['uri'], $this->entry->url);
+        $this->assertEqual($req['data'], array('name' => 'mynewlistname'));
+        $this->assertIdentical($resp, true);
+    }
+
+    public function testSaveFailed() {
+        $url = '/accounts/1/lists/303450';
+        $data = $this->adapter->request('GET', $url);
+        $entry = new AWeberEntry($data, $url, $this->adapter);
+        $entry->name = 'foobarbaz';
+        $resp = $entry->save();
+        $this->assertIdentical($resp, false);
+    }
+
+    /**
+     * Should keep track of whether or not this entry is "dirty".  It should
+     * not make save calls if it hasn't been altered since the last successful
+     * load / save operation.
+     */
+    public function testShouldMaintainDirtiness() {
+        $this->adapter->clearRequests();
+        $resp = $this->entry->save();
+        $this->assertEqual(sizeOf($this->adapter->requestsMade), 0);
+        $this->entry->name = 'mynewlistname';
+        $resp = $this->entry->save();
+        $this->assertEqual(sizeOf($this->adapter->requestsMade), 1);
+        $resp = $this->entry->save();
+        $this->assertEqual(sizeOf($this->adapter->requestsMade), 1);
+    }
+
+
 }
 
 /**
@@ -143,5 +224,58 @@ class TestAWeberAccountEntry extends UnitTestCase {
             $this->assertTrue(preg_match('/^\/accounts\/1\/lists\/[0-9]*\/web_forms\/[0-9]*$/', $entry->url));
         }
     }
+}
+
+class TestAWeberSubscriberEntry extends UnitTestCase {
+
+    public function setUp() {
+        $this->adapter = new MockOAuthAdapter();
+        $this->adapter->app = new AWeberServiceProvider();
+        $url = '/accounts/1/lists/1/subscribers/1';
+        $data = $this->adapter->request('GET', $url);
+        $this->entry = new AWeberEntry($data, $url, $this->adapter);
+    }
+
+    public function testIsSubscriber() {
+        $this->assertEqual($this->entry->type, 'subscriber');
+    }
+
+    public function testHasCustomFields() {
+        $fields = $this->entry->custom_fields;
+        $this->assertFalse(empty($fields));
+    }
+
+    public function testCanReadCustomFields() {
+        $this->assertEqual($this->entry->custom_fields['Make'], 'Honda');
+        $this->assertEqual($this->entry->custom_fields['Model'], 'Civic');
+    }
+
+    public function testCanUpdateCustomFields() {
+        $this->entry->custom_fields['Make'] = 'Jeep';
+        $this->entry->custom_fields['Model'] = 'Cherokee';
+        $this->assertEqual($this->entry->custom_fields['Make'], 'Jeep');
+    }
+
+    public function testCanViewSizeOfCustomFields() {
+        $this->assertEqual(sizeOf($this->entry->custom_fields), 4);
+    }
+
+    public function testCanIterateOverCustomFields() {
+        $count = 0;
+        foreach ($this->entry->custom_fields as $field => $value) {
+            $count++;
+        }
+        $this->assertEqual($count, sizeOf($this->entry->custom_fields));
+    }
+
+    public function testShouldBeUpdatable() {
+        $this->adapter->clearRequests();
+        $this->entry->custom_fields['Make'] = 'Jeep';
+        $this->entry->save();
+        $data = $this->adapter->requestsMade[0]['data'];
+        $this->assertEqual($data['custom_fields']['Make'], 'Jeep');
+    }
+
+
 }
 

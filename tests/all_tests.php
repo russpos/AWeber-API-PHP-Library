@@ -14,6 +14,7 @@ $test->addTestCase(new OAuthAppliationTest());
 $test->addTestCase(new TestAWeberCollection());
 $test->addTestCase(new TestAWeberEntry());
 $test->addTestCase(new TestAWeberAccountEntry());
+$test->addTestCase(new TestAWeberSubscriberEntry());
 $test->run(new TextReporter());
 
 ?>

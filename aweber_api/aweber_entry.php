@@ -12,6 +12,11 @@ class AWeberEntry extends AWeberResponse {
     );
 
     /**
+     * @var array   Stores local modifications that have not been saved
+     */
+    protected $_localDiff = array();
+
+    /**
      * @var array Holds AWeberCollection objects already instantiated, keyed by
      *      their resource name (plural)
      */
@@ -59,6 +64,41 @@ class AWeberEntry extends AWeberResponse {
     }
 
     /**
+     * delete
+     *
+     * Delete this object from the AWeber system.  May not be supported
+     * by all entry types.
+     * @access public
+     * @return boolean  Returns true if it is successfully deleted, false
+     *      if the delete request failed.
+     */
+    public function delete() {
+        $status = $this->adapter->request('DELETE', $this->url, array(), array('return' => 'status'));
+        if (substr($status, 0, 2) == '20') return true;
+        return false;
+    }
+
+
+    /**
+     * save
+     *
+     * Saves the current state of this object if it has been changed.
+     * @access public
+     * @return void
+     */
+    public function save() {
+        if (!empty($this->_localDiff)) {
+            $data = $this->adapter->request('PATCH', $this->url, $this->_localDiff, array('return' => 'status'));
+            if (substr($data, 0, 2) !== '20') {
+                return false;
+            }
+        }
+        $this->_localDiff = array();
+        return true;
+
+    }
+
+    /**
      * __get
      *
      * Used to look up items in data, and special properties like type and 
@@ -74,6 +114,10 @@ class AWeberEntry extends AWeberResponse {
             return null;
         }
         if (!empty($this->data) && array_key_exists($value, $this->data)) {
+            if (is_array($this->data[$value])) {
+                $array = new AWeberEntryDataArray($this->data[$value], $value, $this);
+                $this->data[$value] = $array;
+            }
             return $this->data[$value];
         }
         if ($value == 'type') return $this->_type();
@@ -83,6 +127,24 @@ class AWeberEntry extends AWeberResponse {
         throw new AWeberResourceNotImplemented($this, $value);
     }
 
+    /**
+     * __set
+     *
+     * If the key provided is part of the data array, then update it in the
+     * data array.  Otherwise, use the default __set() behavior.
+     *
+     * @param mixed $key        Key of the attr being set
+     * @param mixed $value      Value being set to the $key attr
+     * @access public
+     */
+    public function __set($key, $value) {
+        if (isset($this->data[$key])) {
+            $this->_localDiff[$key] = $value;
+            return $this->data[$key] = $value;
+        } else {
+            return parent::__set($key, $value);
+        }
+    }
 
     /**
      * getWebForms

@@ -109,6 +109,9 @@ class OAuthApplication implements AWeberOAuthAdapter {
         if (!$response) {
             throw new AWeberResponseError($uri);
         }
+        if (!empty($options['return']) && $options['return'] == 'status') {
+            return $response->headers['Status-Code'];
+        }
         $data = json_decode($response->body, true);
         if (empty($options['allow_empty']) && empty($data)) {
             throw new AWeberResponseError($uri);
@@ -206,6 +209,24 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @return void
      */
     protected function get($url, $data) {
+        $url = $this->_addParametersToUrl($url, $data);
+        $handle = curl_init($url);
+        $resp = $this->_sendRequest($handle);
+        return $resp;
+    }
+
+    /**
+     * _addParametersToUrl
+     *
+     * Adds the parameters in associative array $data to the 
+     * given URL
+     * @param String $url       URL 
+     * @param array $data       Parameters to be added as a query string to
+     *      the URL provided
+     * @access protected
+     * @return void
+     */
+    protected function _addParametersToUrl($url, $data) {
         if (!empty($data)) {
             if (strpos($url, '?') === false) {
                 $url .= '?'.$this->buildData($data);
@@ -213,9 +234,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
                 $url .= '&'.$this->buildData($data);
             }
         }
-        $handle = curl_init($url);
-        $resp = $this->_sendRequest($handle);
-        return $resp;
+        return $url;
     }
 
     /**
@@ -397,15 +416,39 @@ class OAuthApplication implements AWeberOAuthAdapter {
      */
     public function makeRequest($method, $url, $data=array()) {
         $oauth = $this->prepareRequest($method, $url, $data);
-        if ($this->debug) echo "** {$method}: $url\n";
-        if ($this->debug) print_r($oauth);
+        if ($this->debug) echo "\n** {$method}: $url\n";
         if (strtoupper($method) == 'POST') {
             $resp = $this->post($url, $oauth);
+        } else if (strtoupper($method) == 'DELETE') {
+            $resp = $this->delete($url, $oauth);
+        } else if (strtoupper($method) == 'PATCH') {
+            $oauth = $this->prepareRequest($method, $url, array());
+            $resp  = $this->patch($url, $oauth, $data);
         } else {
             $resp = $this->get($url, $oauth, $data);
         }
+        if ($this->debug) print_r($oauth);
         if ($this->debug) echo " --> Status: {$resp->headers['Status-Code']}\n";
         if ($this->debug) echo " --> Body: {$resp->body}";
+        return $resp;
+    }
+
+    /**
+     * put
+     *
+     * Prepare an OAuth put method.
+     *
+     * @param mixed $url    URL where we are making the request to
+     * @param mixed $data   Data that is used to make the request
+     * @access private
+     * @return void
+     */
+    protected function patch($url, $oauth, $data) {
+        $url = $this->_addParametersToUrl($url, $oauth);
+        $handle = curl_init($url);
+        curl_setopt($handle, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($handle, CURLOPT_POSTFIELDS, json_encode($data));
+        $resp = $this->_sendRequest($handle);
         return $resp;
     }
 
@@ -424,6 +467,23 @@ class OAuthApplication implements AWeberOAuthAdapter {
         $postData = $this->buildData($oauth);
         curl_setopt($handle, CURLOPT_POST, true);
         curl_setopt($handle, CURLOPT_POSTFIELDS, $postData);
+        $resp = $this->_sendRequest($handle);
+        return $resp;
+    }
+
+    /**
+     * delete
+     *
+     * Makes a DELETE request
+     * @param mixed $url        URL where we are making the request to
+     * @param mixed $data       Data that is used in the request
+     * @access protected
+     * @return void
+     */
+    protected function delete($url, $data) {
+        $url = $this->_addParametersToUrl($url, $data);
+        $handle = curl_init($url);
+        curl_setopt($handle, CURLOPT_CUSTOMREQUEST, 'DELETE');
         $resp = $this->_sendRequest($handle);
         return $resp;
     }
@@ -456,7 +516,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
     private function _sendRequest($handle) {
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($handle, CURLOPT_HEADER, true);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, array('Expect:'));
+        curl_setopt($handle, CURLOPT_HTTPHEADER, array('Expect:', 'Content-Type: application/json'));
         curl_setopt($handle, CURLOPT_USERAGENT, $this->userAgent);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($handle, CURLOPT_VERBOSE, FALSE);

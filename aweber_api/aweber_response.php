@@ -15,11 +15,37 @@ class AWeberResponse extends AWeberAPIBase {
 
     public $adapter = false;
     public $data = array();
+    public $_dynamicData = array();
 
+    /**
+     * __construct
+     *
+     * Creates a new AWeberRespones
+     *
+     * @param mixed $response       Data returned by the API servers
+     * @param mixed $url            URL we hit to get the data
+     * @param mixed $adapter        OAuth adapter used for future interactions
+     * @access public
+     * @return void
+     */
     public function __construct($response, $url, $adapter) {
         $this->adapter = $adapter;
         $this->url     = $url;
         $this->data    = $response;
+    }
+
+    /**
+     * __set
+     * 
+     * Manual re-implementation of __set, allows sub classes to access
+     * the default behavior by using the parent:: format.
+     *
+     * @param mixed $key        Key of the attr being set
+     * @param mixed $value      Value being set to the attr
+     * @access public
+     */
+    public function __set($key, $value) {
+        $this->{$key} = $value;
     }
 
     /**
