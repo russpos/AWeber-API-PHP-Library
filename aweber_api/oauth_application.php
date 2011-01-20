@@ -448,7 +448,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
         $handle = curl_init($url);
         curl_setopt($handle, CURLOPT_CUSTOMREQUEST, 'PATCH');
         curl_setopt($handle, CURLOPT_POSTFIELDS, json_encode($data));
-        $resp = $this->_sendRequest($handle);
+        $resp = $this->_sendRequest($handle, array('Expect:', 'Content-Type: application/json'));
         return $resp;
     }
 
@@ -509,14 +509,15 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * _sendRequest
      *
      * Actually makes a request.
-     * @param mixed $handle
+     * @param mixed $handle     Curl handle
+     * @param array $headers    Additional headers needed for request
      * @access private
      * @return void
      */
-    private function _sendRequest($handle) {
+    private function _sendRequest($handle, $headers = array('Expect:')) {
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($handle, CURLOPT_HEADER, true);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, array('Expect:', 'Content-Type: application/json'));
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($handle, CURLOPT_USERAGENT, $this->userAgent);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($handle, CURLOPT_VERBOSE, FALSE);
