@@ -157,6 +157,12 @@ class AWeberAPI extends AWeberAPIBase {
     public $adapter = false;
 
     /**
+     * @var Boolean - Lazy load requests? Makes for faster loading of resources
+     *  farther down the heirarchy
+     */
+    public $lazy = false;
+
+    /**
      * Uses the app's authorization code to fetch an access token
      *
      * @param String Authorization code from authorize app page
@@ -191,14 +197,22 @@ class AWeberAPI extends AWeberAPIBase {
      *
      * @param String Consumer Key
      * @param String Consumer Secret
+     * @param Array  Options
      * @return null
      */
-    public function __construct($key, $secret) {
+    public function __construct($key, $secret, $options=array()) {
         // Load key / secret
         $this->consumerKey    = $key;
         $this->consumerSecret = $secret;
+        $this->_loadOptions($options);
 
         $this->setAdapter();
+    }
+
+    protected function _loadOptions($options) {
+        foreach ($options as $option => $value) {
+            $this->{$option} = $value;
+        }
     }
 
     /**
@@ -248,7 +262,9 @@ class AWeberAPI extends AWeberAPIBase {
 
         $body = $this->adapter->request('GET', '/accounts');
         $accounts = $this->readResponse($body, '/accounts');
-        return $accounts[0];
+        $account = $accounts[0];
+        $account->lazy = $this->lazy;
+        return $account;
     }
 
     /**

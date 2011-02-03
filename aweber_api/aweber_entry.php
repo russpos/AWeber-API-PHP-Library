@@ -222,13 +222,17 @@ class AWeberEntry extends AWeberResponse {
     protected function _getCollection($value) {
         if (empty($this->_collections[$value])) {
             $url = "{$this->url}/{$value}";
-            try {
-                $data = $this->adapter->request('GET', $url);
-            }
-            catch (Exception $e) {
-                $data = array('entries' => array(), 'total_size' => 0, 'start' => 0);
+            $data = false;
+            if (!$this->lazy) {
+                try {
+                    $data = $this->adapter->request('GET', $url);
+                }
+                catch (Exception $e) {
+                    $data = array('entries' => array(), 'total_size' => 0, 'start' => 0);
+                }
             }
             $this->_collections[$value] = new AWeberCollection($data, $url, $this->adapter);
+            $this->_collections[$value]->lazy = $this->lazy;
         }
         return $this->_collections[$value];
     }

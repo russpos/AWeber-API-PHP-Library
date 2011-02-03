@@ -18,6 +18,11 @@ class AWeberResponse extends AWeberAPIBase {
     public $_dynamicData = array();
 
     /**
+     * @var lazy - Boolean - Is this response lazy loaded?
+     */
+    public $lazy = false;
+
+    /**
      * __construct
      *
      * Creates a new AWeberRespones
@@ -32,6 +37,12 @@ class AWeberResponse extends AWeberAPIBase {
         $this->adapter = $adapter;
         $this->url     = $url;
         $this->data    = $response;
+    }
+
+    protected function _verifyData() {
+        if ($this->data === false) {
+            $this->data = $this->adapter->request('GET', $this->url);
+        }
     }
 
     /**
@@ -62,6 +73,8 @@ class AWeberResponse extends AWeberAPIBase {
         if (in_array($value, $this->_privateData)) {
             return null;
         }
+
+        $this->_verifyData();
         if (isset($this->data[$value])) {
             return $this->data[$value];
         }

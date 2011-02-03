@@ -22,6 +22,11 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * @return AWeberEntry
      */
     public function getById($id) {
+        if ($this->lazy) {
+            $entry = new AWeberEntry(false, "{$this->url}/{$id}", $this->adapter);
+            $entry->lazy = true;
+            return $entry;
+        }
         try {
             $data = $this->adapter->request('GET', "{$this->url}/{$id}");
             return $this->_makeEntry($data, $id, "{$this->url}/{$id}");
@@ -163,7 +168,9 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
         if (!$url) {
             $url = "{$this->url}/{$id}";
         }
-        return new AWeberEntry($data, $url, $this->adapter);
+        $entry = new AWeberEntry($data, $url, $this->adapter);
+        $entry->lazy = $this->lazy;
+        return $entry;
     }
 
 
