@@ -15,6 +15,7 @@ $test->addTestCase(new TestAWeberCollection());
 $test->addTestCase(new TestAWeberEntry());
 $test->addTestCase(new TestAWeberAccountEntry());
 $test->addTestCase(new TestAWeberSubscriberEntry());
+$test->addTestCase(new TestAWeberMoveEntry());
 $test->run(new TextReporter());
 
 ?>

@@ -4,19 +4,22 @@ class MockOAuthAdapter extends OAuthApplication {
 
     public $requestsMade = array();
 
+    # TODO: make this consistant
     protected $requests = array(
         'GET' => array(
-            '/accounts'                                => 'accounts',
-            '/accounts/1'                              => 'account',
-            '/accounts/1/lists'                        => 'lists',
-            '/accounts/1?ws.op=getWebForms'            => 'web_forms',
-            '/accounts/910/lists'                      => 'lists',
-            '/accounts/1/lists?ws.size=20&ws.start=20' => 'lists_page2',
+            # the new way
+            '/accounts'                                => 'accounts/page1',
+            '/accounts/1'                              => 'accounts/1',
+            '/accounts/1?ws.op=getWebForms'            => 'accounts/webForms',
+            '/accounts/1/lists'                        => 'lists/page1',
+            '/accounts/1/lists?ws.size=20&ws.start=20' => 'lists/page2',
             '/accounts/1/lists/303449'                 => 'lists/303449',
-            '/accounts/1/lists/303450'                 => 'lists/303450',
-            '/accounts/910/lists/123456'               => 'error',
-            '/accounts/1/lists/303449/campaigns'       => 'lists/303449/campaigns',
-            '/accounts/1/lists/1/subscribers/1'        => 'subscribers/1',
+            '/accounts/1/lists/505454'                 => 'lists/505454',
+            '/accounts/1/lists/303449/campaigns'       => 'campaigns/303449',
+            '/accounts/1/lists/303449/subscribers'     => 'subscribers/page1',
+            '/accounts/1/lists/303449/subscribers/1'   => 'subscribers/1',
+            '/accounts/1/lists/303449/subscribers/2'   => 'subscribers/2',
+            '/accounts/1/lists/505454/subscribers/3'   => 'subscribers/3',
         ),
         'DELETE' => array(
             '/accounts/1/lists/303449'                 => '200',
@@ -25,7 +28,16 @@ class MockOAuthAdapter extends OAuthApplication {
         'PATCH' => array(
             '/accounts/1/lists/303449'                 => '209',
             '/accounts/1/lists/303450'                 => '404',
-            '/accounts/1/lists/1/subscribers/1'        => '209',
+            '/accounts/1/lists/303449/subscribers/1'   => '209',
+        ),
+        'POST' => array(
+            '/accounts/1/lists/303449/subscribers/1' => Array(
+                'Status-Code' => '201',
+                'Location' => '/accounts/1/lists/505454/subscribers/3',
+            ),
+            '/accounts/1/lists/303449/subscribers/2' => Array(
+                'Status-Code' => '400',
+            ),
         )
     );
 
@@ -45,8 +57,14 @@ class MockOAuthAdapter extends OAuthApplication {
             $uri = $uri.'?'. http_build_query($data);
         }
         $this->addRequest($method, $uri, $data);
-        if (!empty($options['return']) && $options['return'] == 'status') {
-            return $this->requests[$method][$uri];
+
+        if (!empty($options['return'])) {
+            if ($options['return'] == 'status') {
+                return $this->requests[$method][$uri];
+            }
+            if ($options['return'] == 'headers') {
+                return $this->requests[$method][$uri];
+            }
         }
         $data = MockData::load($this->requests[$method][$uri]);
         $this->parseAsError($data);

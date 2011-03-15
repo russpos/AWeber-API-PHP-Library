@@ -89,6 +89,7 @@ class TestAWeberEntry extends UnitTestCase {
             array(
                 'id'          => 303449,
                 'name'        => 'default303449',
+                'self_link'   => 'https://api.aweber.com/1.0/accounts/1/lists/303449',
                 'campaigns'   => 'collection',
                 'subscribers' => 'collection',
                 'web_forms'   => 'collection',
@@ -138,7 +139,7 @@ class TestAWeberEntry extends UnitTestCase {
     }
 
     /**
-     * Should make a request when a save is made.
+     * Should Color a request when a save is made.
      */
     public function testSave() {
         $this->entry->name = 'mynewlistname';
@@ -153,7 +154,7 @@ class TestAWeberEntry extends UnitTestCase {
     }
 
     public function testSaveFailed() {
-        $url = '/accounts/1/lists/303450';
+        $url = '/accounts/1/lists/505454';
         $data = $this->adapter->request('GET', $url);
         $entry = new AWeberEntry($data, $url, $this->adapter);
         $entry->name = 'foobarbaz';
@@ -163,7 +164,7 @@ class TestAWeberEntry extends UnitTestCase {
 
     /**
      * Should keep track of whether or not this entry is "dirty".  It should
-     * not make save calls if it hasn't been altered since the last successful
+     * not Color save calls if it hasn't been altered since the last successful
      * load / save operation.
      */
     public function testShouldMaintainDirtiness() {
@@ -210,7 +211,7 @@ class TestAWeberAccountEntry extends UnitTestCase {
     }
 
     public function testShouldHaveCorrectCountOfEntries() {
-        $this->assertEqual(sizeOf($this->data), 23);
+        $this->assertEqual(sizeOf($this->data), 181);
     }
 
     public function testShouldHaveEntries() {
@@ -221,7 +222,7 @@ class TestAWeberAccountEntry extends UnitTestCase {
 
     public function testShouldHaveFullURL() {
         foreach($this->data as $entry) {
-            $this->assertTrue(preg_match('/^\/accounts\/1\/lists\/[0-9]*\/web_forms\/[0-9]*$/', $entry->url));
+            $this->assertTrue(preg_match('/^https:\/\/api\.aweber\.com\/1\.0\/accounts\/1\/lists\/[0-9]*\/web_forms\/[0-9]*$/', $entry->url));
         }
     }
 }
@@ -231,7 +232,7 @@ class TestAWeberSubscriberEntry extends UnitTestCase {
     public function setUp() {
         $this->adapter = new MockOAuthAdapter();
         $this->adapter->app = new AWeberServiceProvider();
-        $url = '/accounts/1/lists/1/subscribers/1';
+        $url = '/accounts/1/lists/303449/subscribers/1';
         $data = $this->adapter->request('GET', $url);
         $this->entry = new AWeberEntry($data, $url, $this->adapter);
     }
@@ -246,18 +247,18 @@ class TestAWeberSubscriberEntry extends UnitTestCase {
     }
 
     public function testCanReadCustomFields() {
-        $this->assertEqual($this->entry->custom_fields['Make'], 'Honda');
-        $this->assertEqual($this->entry->custom_fields['Model'], 'Civic');
+        $this->assertEqual($this->entry->custom_fields['Color'], 'blue');
+        $this->assertEqual($this->entry->custom_fields['Walruses'], '32');
     }
 
     public function testCanUpdateCustomFields() {
-        $this->entry->custom_fields['Make'] = 'Jeep';
-        $this->entry->custom_fields['Model'] = 'Cherokee';
-        $this->assertEqual($this->entry->custom_fields['Make'], 'Jeep');
+        $this->entry->custom_fields['Color'] = 'Jeep';
+        $this->entry->custom_fields['Walruses'] = 'Cherokee';
+        $this->assertEqual($this->entry->custom_fields['Color'], 'Jeep');
     }
 
     public function testCanViewSizeOfCustomFields() {
-        $this->assertEqual(sizeOf($this->entry->custom_fields), 4);
+        $this->assertEqual(sizeOf($this->entry->custom_fields), 6);
     }
 
     public function testCanIterateOverCustomFields() {
@@ -270,12 +271,76 @@ class TestAWeberSubscriberEntry extends UnitTestCase {
 
     public function testShouldBeUpdatable() {
         $this->adapter->clearRequests();
-        $this->entry->custom_fields['Make'] = 'Jeep';
+        $this->entry->custom_fields['Color'] = 'Jeep';
         $this->entry->save();
         $data = $this->adapter->requestsMade[0]['data'];
-        $this->assertEqual($data['custom_fields']['Make'], 'Jeep');
+        $this->assertEqual($data['custom_fields']['Color'], 'Jeep');
+    }
+}
+
+
+class TestAWeberMoveEntry extends UnitTestCase {
+
+    public function setUp() {
+        $this->adapter = new MockOAuthAdapter();
+        $this->adapter->app = new AWeberServiceProvider();
+
+         # Get Subscriber
+         $url = '/accounts/1/lists/303449/subscribers/1';
+         $data = $this->adapter->request('GET', $url);
+         $this->subscriber = new AWeberEntry($data, $url, $this->adapter);
+         $url = '/accounts/1/lists/303449/subscribers/2';
+         $data = $this->adapter->request('GET', $url);
+         $this->unsubscribed = new AWeberEntry($data, $url, $this->adapter);
+
+         # Different List
+         $url = '/accounts/1/lists/505454';
+         $data = $this->adapter->request('GET', $url);
+         $this->different_list = new AWeberEntry($data, $url, $this->adapter);
     }
 
+    /**
+     * Move Succeeded
+     */
+    public function testMove_Success() {
+
+         $this->adapter->clearRequests();
+         $resp = $this->subscriber->move($this->different_list);
+
+         $this->assertEqual(sizeOf($this->adapter->requestsMade), 2);
+
+         $req = $this->adapter->requestsMade[0];
+         $this->assertEqual($req['method'], 'POST');
+         $this->assertEqual($req['uri'], $this->subscriber->url);
+         $this->assertEqual($req['data'], array(
+             'ws.op' => 'move',
+             'list_link' => $this->different_list->self_link));
+
+         $req = $this->adapter->requestsMade[1];
+         $this->assertEqual($req['method'], 'GET');
+         $this->assertEqual($req['uri'], '/accounts/1/lists/505454/subscribers/3');
+     }
+
+    /**
+     * Move Failed
+     */
+     public function testMove_Failure() {
+
+         $this->adapter->clearRequests();
+         $resp = $this->unsubscribed->move($this->different_list);
+
+         $this->assertEqual(sizeOf($this->adapter->requestsMade), 1);
+
+         $req = $this->adapter->requestsMade[0];
+         $this->assertEqual($req['method'], 'POST');
+         $this->assertEqual($req['uri'], $this->unsubscribed->url);
+         $this->assertEqual($req['data'], array(
+             'ws.op' => 'move',
+             'list_link' => $this->different_list->self_link));
+
+         $this->assertFalse($resp);
+         return;
+    }
 
 }
 

@@ -104,13 +104,20 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @return void
      */
     public function request($method, $uri, $data = array(), $options = array()) {
+        $uri = $this->app->removeBaseUri($uri);
         $url = $this->app->getBaseUri() . $uri;
+
         $response = $this->makeRequest($method, $url, $data);
         if (!$response) {
             throw new AWeberResponseError($uri);
         }
-        if (!empty($options['return']) && $options['return'] == 'status') {
-            return $response->headers['Status-Code'];
+        if (!empty($options['return'])) {
+            if ($options['return'] == 'status') {
+                return $response->headers['Status-Code'];
+            }
+            if ($options['return'] == 'headers') {
+                return $response->headers;
+            }
         }
         $data = json_decode($response->body, true);
         if (empty($options['allow_empty']) && empty($data)) {
@@ -427,9 +434,13 @@ class OAuthApplication implements AWeberOAuthAdapter {
         } else {
             $resp = $this->get($url, $oauth, $data);
         }
-        if ($this->debug) print_r($oauth);
-        if ($this->debug) echo " --> Status: {$resp->headers['Status-Code']}\n";
-        if ($this->debug) echo " --> Body: {$resp->body}";
+        if ($this->debug) {
+            echo "<pre>";
+            print_r($oauth);
+            echo " --> Status: {$resp->headers['Status-Code']}\n";
+            echo " --> Body: {$resp->body}";
+            echo "</pre>";
+        }
         return $resp;
     }
 

@@ -6,7 +6,6 @@ class AWeberEntry extends AWeberResponse {
      * @var array Holds list of data keys that are not publicly accessible
      */
     protected $_privateData = array(
-        'self_link',
         'resource_type_link',
         'http_etag',
     );
@@ -78,6 +77,35 @@ class AWeberEntry extends AWeberResponse {
         return false;
     }
 
+    /**
+     * move
+     *
+     * Invoke the API method to MOVE an entry resource to a different List.
+     *
+     * Note: Not all entry resources are eligible to be moved, please
+     *       refer to the AWeber API Reference Documentation at
+     *       https://labs.aweber.com/docs/reference/1.0 for more
+     *       details on which entry resources may be moved and if there
+     *       are any requirements for moving that resource.
+     *
+     * @access public
+     * @param AWeberEntry(List)   List to move Resource (this) too.
+     * @return mixed AWeberEntry(Resource) Resource created on List ($list)
+     *                                     or False if resource was not created.
+     */
+    public function move($list) {
+        # Move Resource
+        $params = array('ws.op' => 'move', 'list_link' => $list->self_link);
+        $data = $this->adapter->request('POST', $this->url, $params, array('return' => 'headers'));
+        if ($data['Status-Code']  !==  '201') {
+            return false;
+        }
+
+        # Return new Resource
+        $url = $data['Location'];
+        $resource_data = $this->adapter->request('GET', $url);
+        return new AWeberEntry($resource_data, $url, $this->adapter);
+    }
 
     /**
      * save

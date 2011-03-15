@@ -8,7 +8,7 @@ class TestAWeberCollection extends UnitTestCase {
      */
     public function setUp() {
         $this->adapter = new MockOAuthAdapter();
-        $this->collection = new AWeberCollection(MockData::load('lists'), '/accounts/1/lists', $this->adapter);
+        $this->collection = new AWeberCollection(MockData::load('lists/page3'), '/accounts/1/lists', $this->adapter);
     }
 
     /**
@@ -66,11 +66,11 @@ class TestAWeberCollection extends UnitTestCase {
         $this->assertTrue(empty($this->adapter->requestsMade));
 
         $entry = $this->collection[20];
-        $this->assertEqual($entry->id, 50000002);
+        $this->assertEqual($entry->id, 1364473);
         $this->assertEqual(count($this->adapter->requestsMade), 1);
 
         $entry = $this->collection[21];
-        $this->assertEqual($entry->id, 406860);
+        $this->assertEqual($entry->id, 1211626);
         $this->assertEqual(count($this->adapter->requestsMade), 1);
     }
 

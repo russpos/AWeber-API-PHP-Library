@@ -20,7 +20,7 @@ class AWeberServiceProvider implements OAuthServiceProvider {
     /**
      * @var String Location for API calls
      */
-    public $baseUri = 'https://api.aweber.com/1.0';
+    public $baseUri = 'http://apistage1.colo.lair:12011/1.0';
 
     /**
      * @var String Location to request an access token
@@ -40,6 +40,10 @@ class AWeberServiceProvider implements OAuthServiceProvider {
 
     public function getBaseUri() {
         return $this->baseUri;
+    }
+
+    public function removeBaseUri($url) {
+        return str_replace($this->getBaseUri(), '', $url);
     }
 
     public function getAccessTokenUrl() {
