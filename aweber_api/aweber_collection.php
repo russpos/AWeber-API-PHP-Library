@@ -30,6 +30,42 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
         }
     }
 
+
+    /**
+     * find
+     *
+     * Invoke the API 'find' operation on a collection to return a subset
+     * of that collection.  Not all collections support the 'find' operation.
+     * refer to https://labs.aweber.com/docs/reference/1.0 for more information.
+     *
+     * @param mixed $search_data   Associative array of key/value pairs used as search filters
+     *                             * refer to https://labs.aweber.com/docs/reference/1.0 for a
+     *                               complete list of valid search filters.
+     *                             * filtering on attributes that require additional permissions to
+     *                               display requires an app authorized with those additional permissions.
+     * @access public
+     * @return mixed               AWeberCollection if the 'find' operation is successful
+     *                             otherwise, null if the 'find' operation is not successful
+     */
+    public function find($search_data) {
+        # invoke find operation
+        $params = array_merge($search_data, array('ws.op' => 'find'));
+        try {
+            $data = $this->adapter->request('GET', $this->url, $params);
+        } catch (AWeberException $e) {
+            return false;
+        }
+
+        # get total size
+        $ts_params = array_merge($params, array('ws.show' => 'total_size'));
+        $total_size = $this->adapter->request('GET', $this->url, $ts_params);
+
+        # return collection
+        $data['total_size'] = $total_size;
+        $url = $this->url . '?'. http_build_query($params);
+        return new AWeberCollection($data, $url, $this->adapter);
+    }
+
     /**
      * _getPageParams
      *

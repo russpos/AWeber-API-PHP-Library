@@ -1,5 +1,52 @@
 <?php
 
+class TestAWeberCollectionFind extends UnitTestCase {
+
+     public function setUp() {
+         $this->adapter = new MockOAuthAdapter();
+         $this->adapter->app = new AWeberServiceProvider();
+         $this->subscribers = $this->_getCollection('/accounts/1/lists/303449/subscribers');
+         $this->lists = $this->_getCollection('/accounts/1/lists');
+         $this->adapter->clearRequests();
+     }
+
+     /**
+      * Return AWeberCollection
+      */
+     public function _getCollection($url) {
+         $data = $this->adapter->request('GET', $url);
+         return new AWeberCollection($data, $url, $this->adapter);
+     }
+
+     /**
+      * Find Returns Entries
+      */
+     public function testFind_ReturnsEntries() {
+
+        $found_subscribers = $this->subscribers->find(array('email' => 'someone@example.com'));
+
+        # Asserts on the API request
+        $expected_url = $this->subscribers->url . '?email=someone%40example.com&ws.op=find';
+        $this->assertEqual(sizeOf($this->adapter->requestsMade), 2);
+        $req = $this->adapter->requestsMade[0];
+        $this->assertEqual($req['method'], 'GET');
+        $this->assertEqual($req['uri'], $expected_url);
+
+        $req = $this->adapter->requestsMade[1];
+        $this->assertEqual($req['method'], 'GET');
+        $this->assertEqual($req['uri'], $expected_url . "&ws.show=total_size");
+
+        # Asserts on the returned data
+        $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));
+        $this->assertEqual($this->adapter, $found_subscribers->adapter);
+        #$this->assertEqual($found_subscribers->url, $expected_url);
+        #echo "<pre>";
+        #print_r($found_subscribers);
+        $this->assertEqual($found_subscribers->total_size, 1);
+     }
+}
+
+
 class TestAWeberCollection extends UnitTestCase {
 
     /**

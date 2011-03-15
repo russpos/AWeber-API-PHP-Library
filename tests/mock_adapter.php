@@ -20,6 +20,8 @@ class MockOAuthAdapter extends OAuthApplication {
             '/accounts/1/lists/303449/subscribers/1'   => 'subscribers/1',
             '/accounts/1/lists/303449/subscribers/2'   => 'subscribers/2',
             '/accounts/1/lists/505454/subscribers/3'   => 'subscribers/3',
+            '/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find' => 'subscribers/find',
+            '/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find&ws.show=total_size' => 'subscribers/find_tsl',
         ),
         'DELETE' => array(
             '/accounts/1/lists/303449'                 => '200',
@@ -66,6 +68,7 @@ class MockOAuthAdapter extends OAuthApplication {
                 return $this->requests[$method][$uri];
             }
         }
+
         $data = MockData::load($this->requests[$method][$uri]);
         $this->parseAsError($data);
         return $data;

@@ -222,7 +222,7 @@ class TestAWeberAccountEntry extends UnitTestCase {
 
     public function testShouldHaveFullURL() {
         foreach($this->data as $entry) {
-            $this->assertTrue(preg_match('/^https:\/\/api\.aweber\.com\/1\.0\/accounts\/1\/lists\/[0-9]*\/web_forms\/[0-9]*$/', $entry->url));
+            $this->assertTrue(preg_match('/^\/accounts\/1\/lists\/[0-9]*\/web_forms\/[0-9]*$/', $entry->url));
         }
     }
 }

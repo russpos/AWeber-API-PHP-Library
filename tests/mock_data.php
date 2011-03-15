@@ -9,6 +9,13 @@ class MockData {
         if (!MockData::$host) return '';
         if (!MockData::$oauth) $resource = 'error';
         $dir = dirname(__FILE__);
-        return json_decode(file_get_contents($dir."/data/{$resource}.json"), true);
+
+        $data = file_get_contents($dir."/data/{$resource}.json");
+        $json_data = json_decode($data, true);
+        if($json_data == null) {
+            # used for total_size_links
+            return intval($data);
+        }
+        return $json_data;
     }
 }
