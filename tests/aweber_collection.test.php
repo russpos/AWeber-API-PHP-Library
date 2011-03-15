@@ -39,9 +39,7 @@ class TestAWeberCollectionFind extends UnitTestCase {
         # Asserts on the returned data
         $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));
         $this->assertEqual($this->adapter, $found_subscribers->adapter);
-        #$this->assertEqual($found_subscribers->url, $expected_url);
-        #echo "<pre>";
-        #print_r($found_subscribers);
+        $this->assertEqual($found_subscribers->url, $expected_url);
         $this->assertEqual($found_subscribers->total_size, 1);
      }
 }

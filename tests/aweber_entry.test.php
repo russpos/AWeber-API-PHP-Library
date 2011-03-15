@@ -289,6 +289,7 @@ class TestAWeberMoveEntry extends UnitTestCase {
          $url = '/accounts/1/lists/303449/subscribers/1';
          $data = $this->adapter->request('GET', $url);
          $this->subscriber = new AWeberEntry($data, $url, $this->adapter);
+
          $url = '/accounts/1/lists/303449/subscribers/2';
          $data = $this->adapter->request('GET', $url);
          $this->unsubscribed = new AWeberEntry($data, $url, $this->adapter);
