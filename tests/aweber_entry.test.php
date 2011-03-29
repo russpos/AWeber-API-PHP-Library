@@ -87,12 +87,13 @@ class TestAWeberEntry extends UnitTestCase {
     public function testAttrs() {
         $this->assertEqual($this->entry->attrs(),
             array(
-                'id'          => 303449,
-                'name'        => 'default303449',
-                'self_link'   => 'https://api.aweber.com/1.0/accounts/1/lists/303449',
-                'campaigns'   => 'collection',
-                'subscribers' => 'collection',
-                'web_forms'   => 'collection',
+                'id'                   => 303449,
+                'name'                 => 'default303449',
+                'self_link'            => 'https://api.aweber.com/1.0/accounts/1/lists/303449',
+                'campaigns'            => 'collection',
+                'subscribers'          => 'collection',
+                'web_forms'            => 'collection',
+                'custom_fields'        => 'collection',
                 'web_form_split_tests' => 'collection',
             )
         );

@@ -32,6 +32,36 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
 
 
     /**
+     * create
+     *
+     * Invoke the API method to CREATE a new entry resource.
+     *
+     * Note: Not all entry resources are eligible to be created, please
+     *       refer to the AWeber API Reference Documentation at
+     *       https://labs.aweber.com/docs/reference/1.0 for more
+     *       details on which entry resources may be created and what
+     *       attributes are required for creating resources.
+     *
+     * @access public
+     * @param params mixed  associtative array of key/value pairs.
+     * @return mixed AWeberEntry(Resource) The new resource created
+     *                                     or False if resource was not created.
+     */
+    public function create($kv_pairs) {
+        # Create Resource
+        $params = array_merge(array('ws.op' => 'create'), $kv_pairs);
+        $data = $this->adapter->request('POST', $this->url, $params, array('return' => 'headers'));
+        if ($data['Status-Code']  !==  '201') {
+            return false;
+        }
+
+        # Return new Resource
+        $url = $data['Location'];
+        $resource_data = $this->adapter->request('GET', $url);
+        return new AWeberEntry($resource_data, $url, $this->adapter);
+    }
+
+    /**
      * find
      *
      * Invoke the API 'find' operation on a collection to return a subset
