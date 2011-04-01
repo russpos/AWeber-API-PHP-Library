@@ -84,7 +84,7 @@ class AWeberAPIBase {
         'broadcast_campaign'   => array('links', 'messages'),
         'followup_campaign'    => array('links', 'messages'),
         'link'                 => array('clicks'),
-        'list'                 => array('campaigns', 'subscribers',
+        'list'                 => array('campaigns', 'custom_fields', 'subscribers',
                                         'web_forms', 'web_form_split_tests'),
         'web_form'             => array(),
         'web_form_split_test'  => array('components'),

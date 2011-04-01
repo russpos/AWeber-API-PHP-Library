@@ -44,6 +44,42 @@ class TestAWeberCollectionFind extends UnitTestCase {
      }
 }
 
+class TestAWeberCreateEntry extends UnitTestCase {
+
+    public function setUp() {
+        $this->adapter = new MockOAuthAdapter();
+        $this->adapter->app = new AWeberServiceProvider();
+
+         # Get CustomFields
+         $url = '/accounts/1/lists/303449/custom_fields';
+         $data = $this->adapter->request('GET', $url);
+         $this->custom_fields = new AWeberCollection($data, $url, $this->adapter);
+
+    }
+
+    /**
+     * Create Succeeded
+     */
+    public function testCreate_Success() {
+
+         $this->adapter->clearRequests();
+         $resp = $this->custom_fields->create(array('name' => 'AwesomeField'));
+
+
+         $this->assertEqual(sizeOf($this->adapter->requestsMade), 2);
+
+         $req = $this->adapter->requestsMade[0];
+         $this->assertEqual($req['method'], 'POST');
+         $this->assertEqual($req['uri'], $this->custom_fields->url);
+         $this->assertEqual($req['data'], array(
+             'ws.op' => 'create',
+             'name' => 'AwesomeField'));
+
+         $req = $this->adapter->requestsMade[1];
+         $this->assertEqual($req['method'], 'GET');
+         $this->assertEqual($req['uri'], '/accounts/1/lists/303449/custom_fields/2');
+     }
+}
 
 class TestAWeberCollection extends UnitTestCase {
 
