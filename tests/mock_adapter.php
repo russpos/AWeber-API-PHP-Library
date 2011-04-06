@@ -25,6 +25,8 @@ class MockOAuthAdapter extends OAuthApplication {
             '/accounts/1/lists/505454/subscribers/3'   => 'subscribers/3',
             '/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find' => 'subscribers/find',
             '/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find&ws.show=total_size' => 'subscribers/find_tsl',
+            '/accounts/1/lists/303449/subscribers?email=nonexist%40example.com&ws.op=find' => 'subscribers/nonexist',
+            '/accounts/1/lists/303449/subscribers?email=nonexist%40example.com&ws.op=find&ws.show=total_size' => 'subscribers/nonexist_tsl',
         ),
         'DELETE' => array(
             '/accounts/1/lists/303449'                 => '200',
@@ -77,6 +79,9 @@ class MockOAuthAdapter extends OAuthApplication {
         }
 
         $data = MockData::load($this->requests[$method][$uri]);
+        if (empty($options['allow_empty']) && empty($data)) {
+            throw new AWeberResponseError($uri);
+        }
         $this->parseAsError($data);
         return $data;
     }

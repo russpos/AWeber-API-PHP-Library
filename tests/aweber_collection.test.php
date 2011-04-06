@@ -19,7 +19,7 @@ class TestAWeberCollectionFind extends UnitTestCase {
      }
 
      /**
-      * Find Returns Entries
+      * Find That Returns Entries
       */
      public function testFind_ReturnsEntries() {
 
@@ -42,6 +42,32 @@ class TestAWeberCollectionFind extends UnitTestCase {
         $this->assertEqual($found_subscribers->url, $expected_url);
         $this->assertEqual($found_subscribers->total_size, 1);
      }
+
+    /**
+      * Find That Does Not Return Entries
+      */
+     public function testFindDoesNot_ReturnsEntries() {
+
+        $found_subscribers = $this->subscribers->find(array('email' => 'nonexist@example.com'));
+
+        # Asserts on the API request
+        $expected_url = $this->subscribers->url . '?email=nonexist%40example.com&ws.op=find';
+        $this->assertEqual(sizeOf($this->adapter->requestsMade), 2);
+        $req = $this->adapter->requestsMade[0];
+        $this->assertEqual($req['method'], 'GET');
+        $this->assertEqual($req['uri'], $expected_url);
+
+        $req = $this->adapter->requestsMade[1];
+        $this->assertEqual($req['method'], 'GET');
+        $this->assertEqual($req['uri'], $expected_url . "&ws.show=total_size");
+
+        # Asserts on the returned data
+        $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));
+        $this->assertEqual($this->adapter, $found_subscribers->adapter);
+        $this->assertEqual($found_subscribers->url, $expected_url);
+        $this->assertEqual($found_subscribers->total_size, 0);
+     }
+
 }
 
 class TestAWeberCreateEntry extends UnitTestCase {

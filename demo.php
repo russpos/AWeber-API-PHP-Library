@@ -1,9 +1,9 @@
 <?php
-require_once('aweber_api.php');
+require_once('aweber_api/aweber_api.php');
 // Replace with the keys of your application
 // NEVER SHARE OR DISTRIBUTE YOUR APPLICATIONS'S KEYS!
-$consumerKey    = "*****************";
-$consumerSecret = "*****************";
+$consumerKey    = "************************";
+$consumerSecret = "*********************************";
 $aweber = new AWeberAPI($consumerKey, $consumerSecret);
 
 if (empty($_COOKIE['accessToken'])) {
@@ -27,7 +27,6 @@ if (empty($_COOKIE['accessToken'])) {
 }
 $aweber->adapter->debug = true;
 $account = $aweber->getAccount($_COOKIE['accessToken'], $_COOKIE['accessTokenSecret']);
-$account->loadFromUrl('/accounts/326084?ws.op=getWebForms');
 ?>
 <!DOCTYPE html>
 <html lang="en">
