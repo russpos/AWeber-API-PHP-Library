@@ -89,11 +89,10 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
         # get total size
         $ts_params = array_merge($params, array('ws.show' => 'total_size'));
         $total_size = $this->adapter->request('GET', $this->url, $ts_params, array('allow_empty' => 'true'));
+        $data['total_size'] = $total_size;
 
         # return collection
-        $data['total_size'] = $total_size;
-        $url = $this->url . '?'. http_build_query($params);
-        return new AWeberCollection($data, $url, $this->adapter);
+        return $this->readResponse($data, $this->url);
     }
 
     /**

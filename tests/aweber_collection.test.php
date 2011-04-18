@@ -39,7 +39,7 @@ class TestAWeberCollectionFind extends UnitTestCase {
         # Asserts on the returned data
         $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));
         $this->assertEqual($this->adapter, $found_subscribers->adapter);
-        $this->assertEqual($found_subscribers->url, $expected_url);
+        $this->assertEqual($found_subscribers->url, $this->subscribers->url);
         $this->assertEqual($found_subscribers->total_size, 1);
      }
 
@@ -64,7 +64,7 @@ class TestAWeberCollectionFind extends UnitTestCase {
         # Asserts on the returned data
         $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));
         $this->assertEqual($this->adapter, $found_subscribers->adapter);
-        $this->assertEqual($found_subscribers->url, $expected_url);
+        $this->assertEqual($found_subscribers->url, $this->subscribers->url);
         $this->assertEqual($found_subscribers->total_size, 0);
      }
 
