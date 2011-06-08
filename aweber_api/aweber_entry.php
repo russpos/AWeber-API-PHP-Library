@@ -200,6 +200,29 @@ class AWeberEntry extends AWeberResponse {
         return new AWeberCollection($data, $url, $this->adapter);
     }
 
+    /** getParentEntry
+     *
+     * Gets an entry's parent entry
+     * Returns NULL if no parent entry
+     */
+    public function getParentEntry(){
+        $url_parts = split('/', $this->url);
+        $size = count($url_parts);
+
+        #Remove entry id and slash from end of url
+        $url = substr($this->url, 0, -strlen($url_parts[$size-1])-1);
+
+        #Remove collection name and slash from end of url
+        $url = substr($url, 0, -strlen($url_parts[$size-2])-1);
+
+        try {
+            $data = $this->adapter->request('GET', $url);
+            return new AWeberEntry($data, $url, $this->adapter);
+        } catch (Exception $e) {
+            return NULL;
+        }
+    }
+
     /**
      * getWebForms
      *
@@ -306,5 +329,3 @@ class AWeberEntry extends AWeberResponse {
     }
 
 }
-
-?>

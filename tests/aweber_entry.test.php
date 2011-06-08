@@ -392,6 +392,38 @@ class TestAWeberMoveEntry extends UnitTestCase {
          $this->assertFalse($resp);
          return;
     }
-
 }
 
+class TestGettingEntryParentEntry extends UnitTestCase {
+
+    public function setUp() {
+        $this->adapter = new MockOAuthAdapter();
+        $this->adapter->app = new AWeberServiceProvider();
+        $url = '/accounts/1/lists/303449';
+        $data = $this->adapter->request('GET', $url);
+        $this->list = new AWeberEntry($data, $url, $this->adapter);
+        $url = '/accounts/1';
+        $data = $this->adapter->request('GET', $url);
+        $this->account = new AWeberEntry($data, $url, $this->adapter);
+        $url = '/accounts/1/lists/303449/custom_fields/1';
+        $data = $this->adapter->request('GET', $url);
+        $this->customField = new AWeberEntry($data, $url, $this->adapter);
+    }
+
+    public function testListParentShouldBeAccount() {
+        $entry = $this->list->getParentEntry();
+        $this->assertTrue(is_a($entry, 'AWeberEntry'));
+        $this->assertEqual($entry->type, 'account');
+    }
+
+    public function testCustomFieldParentShouldBeList() {
+        $entry = $this->customField->getParentEntry();
+        $this->assertTrue(is_a($entry, 'AWeberEntry'));
+        $this->assertEqual($entry->type, 'list');
+    }
+
+    public function testAccountParentShouldBeNULL() {
+        $entry = $this->account->getParentEntry();
+        $this->assertEqual($entry, NULL);
+    }
+}

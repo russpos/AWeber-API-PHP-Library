@@ -21,4 +21,6 @@ $test->addTestCase(new TestAccountGetWebFormSplitTests());
 $test->addTestCase(new TestAccountFindSubscribers());
 $test->addTestCase(new TestAWeberSubscriberEntry());
 $test->addTestCase(new TestAWeberMoveEntry());
+$test->addTestCase(new TestGettingEntryParentEntry());
+$test->addTestCase(new TestGettingCollectionParentEntry());
 $test->run(new TextReporter());
