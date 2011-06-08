@@ -175,6 +175,32 @@ class AWeberEntry extends AWeberResponse {
     }
 
     /**
+     * findSubscribers
+     *
+     * Looks through all lists for subscribers
+     * that match the given filter
+     * @access public
+     * @return AWeberCollection
+     */
+    public function findSubscribers($search_data) {
+        $this->_methodFor(array('account'));
+        $params = array_merge($search_data, array('ws.op' => 'findSubscribers'));
+        try {
+            $data = $this->adapter->request('GET', $this->url, $params);
+        } catch (AWeberException $e) {
+            return false;
+        }
+
+        $ts_params = array_merge($params, array('ws.show' => 'total_size'));
+        $total_size = $this->adapter->request('GET', $this->url, $ts_params, array('allow_empty' => 'true'));
+
+        # return collection
+        $data['total_size'] = $total_size;
+        $url = $this->url . '?'. http_build_query($params);
+        return new AWeberCollection($data, $url, $this->adapter);
+    }
+
+    /**
      * getWebForms
      *
      * Gets all web_forms for this account
