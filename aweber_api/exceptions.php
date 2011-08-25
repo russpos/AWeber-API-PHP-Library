@@ -2,6 +2,34 @@
 
 class AWeberException extends Exception { }
 
+/**
+ * Thrown when the API returns an error. (HTTP status >= 400)
+ *
+ *
+ * @uses AWeberException
+ * @package
+ * @version $id$
+ */
+class APIException extends AWeberException {
+
+    public $type;
+    public $status;
+    public $message;
+    public $documentation_url;
+    public $url;
+
+    public function __construct($error, $url) { #type, $status, $message, $documentation_url) {
+
+        // record specific details of the API exception for processing
+        $this->url = $url;
+        $this->type = $error['type'];
+        $this->status = $error['status'];
+        $this->message = $error['message'];
+        $this->documentation_url = $error['documentation_url'];
+
+        parent::__construct($this->message);
+    }
+}
 
 /**
  * Thrown when attempting to use a resource that is not implemented.

@@ -101,12 +101,8 @@ class AWeberAPIBase {
      * @return AWeberEntry or AWeberCollection
      */
     public function loadFromUrl($url) {
-        try {
-            $data = $this->adapter->request('GET', $url);
-            return $this->readResponse($data, $url);
-        } catch (AWeberException $e) {
-            return null;
-        }
+        $data = $this->adapter->request('GET', $url);
+        return $this->readResponse($data, $url);
     }
 
     protected function _cleanUrl($url) {

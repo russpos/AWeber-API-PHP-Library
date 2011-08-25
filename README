@@ -3,5 +3,53 @@ AWeber API PHP Library
 
 PHP library for easily integrating with the AWeber API.
 
-For complete documentation:
+Changelog:
+----------
+
+2011-08-25: v1.1.0
+ * Modified client library to raise an APIException on any API errors (HTTP status >= 400)
+
+
+Basic Usage:
+------------
+Refer to demo.php to see a working example of how to authenticate an app and query the API.
+
+For more complete documentation please refer to:
 https://labs.aweber.com/docs/php-library-walkthrough
+
+
+Handling Errors:
+----------------
+Sometimes errors happen and your application should handle them appropriately.
+Whenever an API error occurs an APIException will be raised with a detailed 
+error message and documentation link to explain whats wrong.
+
+You should wrap any calls to the API in a try/except block.
+
+Common Errors:
+ * Resource not found (404 error)
+ * Your application has been rate limited (403 error)
+ * Bad request (400 error)
+ * API Temporarily unavailable (503 error)
+
+Refer to https://labs.aweber.com/docs/troubleshooting for the complete list
+
+Example Below:
+
+<?php
+
+$consumerKey = '***';
+$consumerSecret = '***';
+$accessKey = '***';
+$accessSecret = '***';
+
+$aweber = new AWeberAPI($consumerKey, $consumerSecret);
+$account = $aweber->getAccount($accessKey, $accessSecret);
+
+try {
+    $resource = $account->loadFromUrl('/accounts/idontexist');
+} catch (APIException $exc) {
+    print "<li> $exc->type on $exc->url, refer to $exc->message for more info ...<br>";
+}
+
+?>

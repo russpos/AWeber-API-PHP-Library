@@ -106,11 +106,17 @@ class OAuthApplication implements AWeberOAuthAdapter {
     public function request($method, $uri, $data = array(), $options = array()) {
         $uri = $this->app->removeBaseUri($uri);
         $url = $this->app->getBaseUri() . $uri;
-
         $response = $this->makeRequest($method, $url, $data);
+
         if (!$response) {
             throw new AWeberResponseError($uri);
         }
+
+        if($response->headers['Status-Code'] >= 400) {
+            $data = json_decode($response->body, true);
+            throw new APIException($data['error'], $url);
+        }
+
         if (!empty($options['return'])) {
             if ($options['return'] == 'status') {
                 return $response->headers['Status-Code'];
@@ -167,7 +173,6 @@ class OAuthApplication implements AWeberOAuthAdapter {
         $this->user->tokenSecret = $data['oauth_token_secret'];
         return array($data['oauth_token'], $data['oauth_token_secret']);
     }
-
 
     /**
      * parseAsError

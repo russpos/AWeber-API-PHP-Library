@@ -1,1 +1,1 @@
-{"error": {"message": "Missing required parameter 'oauth_consumer_key'.", "type": "MissingRequiredOAuthParameterError"}}
+{"error": {"message": "Simulated Exception", "type": "BadRequestError"}}

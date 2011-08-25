@@ -22,12 +22,8 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * @return AWeberEntry
      */
     public function getById($id) {
-        try {
-            $data = $this->adapter->request('GET', "{$this->url}/{$id}");
-            return $this->_makeEntry($data, $id, "{$this->url}/{$id}");
-        } catch (AWeberException $e) {
-            return null;
-        }
+        $data = $this->adapter->request('GET', "{$this->url}/{$id}");
+        return $this->_makeEntry($data, $id, "{$this->url}/{$id}");
     }
 
 
@@ -44,16 +40,12 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      *
      * @access public
      * @param params mixed  associtative array of key/value pairs.
-     * @return mixed AWeberEntry(Resource) The new resource created
-     *                                     or False if resource was not created.
+     * @return AWeberEntry(Resource) The new resource created
      */
     public function create($kv_pairs) {
         # Create Resource
         $params = array_merge(array('ws.op' => 'create'), $kv_pairs);
         $data = $this->adapter->request('POST', $this->url, $params, array('return' => 'headers'));
-        if ($data['Status-Code']  !==  '201') {
-            return false;
-        }
 
         # Return new Resource
         $url = $data['Location'];
@@ -74,17 +66,12 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      *                             * filtering on attributes that require additional permissions to
      *                               display requires an app authorized with those additional permissions.
      * @access public
-     * @return mixed               AWeberCollection if the 'find' operation is successful
-     *                             otherwise, null if the 'find' operation is not successful
+     * @return AWeberCollection 
      */
     public function find($search_data) {
         # invoke find operation
         $params = array_merge($search_data, array('ws.op' => 'find'));
-        try {
-            $data = $this->adapter->request('GET', $this->url, $params);
-        } catch (AWeberException $e) {
-            return false;
-        }
+        $data = $this->adapter->request('GET', $this->url, $params);
 
         # get total size
         $ts_params = array_merge($params, array('ws.show' => 'total_size'));
@@ -187,20 +174,15 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * @access protected
      * @return void
      */
-    protected function _loadPageForOffset($offset, $attempt=1) {
+    protected function _loadPageForOffset($offset) {
         $this->_calculatePageSize();
         $start = round($offset / $this->pageSize) * $this->pageSize;
         $params = $this->_getPageParams($start, $this->pageSize);
 
         // Loading page
-        try {
-            $data = $this->adapter->request('GET', $this->url, $params);
-            $this->adapter->debug = false;
-        }
-        catch (Exception $e) {
-            if ($attempt < 3) $this->_loadPageForOffset($offset, ++$attempt);
-            return;
-        }
+        $data = $this->adapter->request('GET', $this->url, $params);
+        $this->adapter->debug = false;
+
         $rekeyed = array();
         foreach ($data['entries'] as $key => $entry) {
             $rekeyed[$key+$data['start']] = $entry;
