@@ -270,7 +270,6 @@ class TestAccountFindSubscribers extends AccountTestCase {
 
     public function testShouldSupportFindSubscribersMethod() {
         $subscribers = $this->entry->findSubscribers(array('email' => 'joe@example.com'));
-
         $this->assertTrue(is_a($subscribers, 'AWeberCollection'));
         $this->assertEqual(count($subscribers), 1);
         $this->assertEqual($subscribers->data['entries'][0]['self_link'],
