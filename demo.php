@@ -4,6 +4,7 @@ require_once('aweber_api/aweber_api.php');
 // NEVER SHARE OR DISTRIBUTE YOUR APPLICATIONS'S KEYS!
 $consumerKey    = "************************";
 $consumerSecret = "*********************************";
+
 $aweber = new AWeberAPI($consumerKey, $consumerSecret);
 
 if (empty($_COOKIE['accessToken'])) {
@@ -25,8 +26,12 @@ if (empty($_COOKIE['accessToken'])) {
     header('Location: '.$_COOKIE['callbackUrl']);
     exit();
 }
-$aweber->adapter->debug = true;
+
+# set this to true to view the actual api request and response
+$aweber->adapter->debug = false;
+
 $account = $aweber->getAccount($_COOKIE['accessToken'], $_COOKIE['accessTokenSecret']);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,7 +56,7 @@ foreach($list->campaigns as $campaign) {
 ?>
     <tr>
         <td class="stat"><em><?php echo $campaign->subject; ?></em></td>
-        <td class="value"><?php echo date('F j, Y h:iA', strtotime($campaign->sent_date)); ?></td>
+        <td class="value"><?php echo date('F j, Y h:iA', strtotime($campaign->sent_at)); ?></td>
         <td class="value"><ul>
               <li><b>Opened:</b> <?php echo $campaign->total_opens; ?></li>
               <li><b>Sent:</b>  <?php echo $campaign->total_sent; ?></li>
