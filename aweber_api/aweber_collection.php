@@ -46,6 +46,7 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
         # Create Resource
         $params = array_merge(array('ws.op' => 'create'), $kv_pairs);
         $data = $this->adapter->request('POST', $this->url, $params, array('return' => 'headers'));
+        $this->_entries = array();
 
         # Return new Resource
         $url = $data['Location'];

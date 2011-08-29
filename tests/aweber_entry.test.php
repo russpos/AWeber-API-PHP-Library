@@ -1,11 +1,5 @@
 <?php
 
-function get_mock_adapter() {
-    // function to return a mock adapter
-    $serviceProvider = new AWeberServiceProvider();
-    return new MockOAuthAdapter($serviceProvider);
-}
-
 
 class TestAWeberEntry extends UnitTestCase {
 

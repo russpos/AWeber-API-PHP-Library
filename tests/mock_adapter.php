@@ -1,9 +1,16 @@
 <?php
 
-# if status is 201, 2nd arguement is link url, otherwise its response body
+function get_mock_adapter() {
+    // function to return a mock adapter
+    $serviceProvider = new AWeberServiceProvider();
+    return new MockOAuthAdapter($serviceProvider);
+}
+
 $map = array();
+
 $map['DELETE']['/accounts/1'                                                                                    ] = array(403, 'error');
 $map['DELETE']['/accounts/1/lists/303449'                                                                       ] = array(200, null);
+
 $map['GET'   ]['/accounts'                                                                                      ] = array(200, 'accounts/page1');
 $map['GET'   ]['/accounts/1'                                                                                    ] = array(200, 'accounts/1');
 $map['GET'   ]['/accounts/1/lists'                                                                              ] = array(200, 'lists/page1');
@@ -36,6 +43,7 @@ $map['PATCH' ]['/accounts/1/lists/505454'                                       
 $map['POST'  ]['/accounts/1/lists/303449/custom_fields'                                                         ] = array(201, '/accounts/1/lists/303449/custom_fields/2');
 $map['POST'  ]['/accounts/1/lists/303449/subscribers/1'                                                         ] = array(201, '/accounts/1/lists/505454/subscribers/3');
 $map['POST'  ]['/accounts/1/lists/303449/subscribers/2'                                                         ] = array(400, 'error');
+
 
 class MockOAuthAdapter extends OAuthApplication {
 

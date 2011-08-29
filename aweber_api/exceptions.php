@@ -18,8 +18,7 @@ class AWeberAPIException extends AWeberException {
     public $documentation_url;
     public $url;
 
-    public function __construct($error, $url) { #type, $status, $message, $documentation_url) {
-
+    public function __construct($error, $url) {
         // record specific details of the API exception for processing
         $this->url = $url;
         $this->type = $error['type'];
