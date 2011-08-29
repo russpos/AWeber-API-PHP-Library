@@ -1,9 +1,16 @@
 <?php
 
+#function get_mock_adapter() {
+#    // function to return a mock adapter
+#    $serviceProvider = new AWeberServiceProvider();
+#    return new MockOAuthAdapter($serviceProvider);
+#}
+
+
 class TestAWeberAPI extends UnitTestCase {
 
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
+        $this->adapter = get_mock_adapter();
         $this->app = array(
             'key'    => 'RogsGzUw3QAK6cPSI24u',
             'secret' => '1eaHAFJnEklS8qSBvitvSO6OCkaU4QyHU3AOE1rw',
@@ -15,18 +22,14 @@ class TestAWeberAPI extends UnitTestCase {
             'token'  => 'lc0UcVJdlpNyVVMLzeZWZZGb61pEnlhBdHGg9usF',
             'secret' => 'VMus5FW1TyX7N24xaOyc0VsylGBHC6rAomq3LM67',
         );
-
     }
 
     /**
      * App keys given at construction should be maintained internally
      */
     public function test_should_contain_app_keys() {
-        $this->assertEqual($this->aweber->consumerKey,
-                           $this->app['key']);
-        $this->assertEqual($this->aweber->consumerSecret,
-                           $this->app['secret']);
-
+        $this->assertEqual($this->aweber->consumerKey, $this->app['key']);
+        $this->assertEqual($this->aweber->consumerSecret, $this->app['secret']);
     }
 
     /**
@@ -44,24 +47,19 @@ class TestAWeberAPI extends UnitTestCase {
         MockData::$oauth = false;
         $this->aweber->setAdapter($this->adapter);
         try {
-            $account = $this->aweber->getAccount($this->user['token'],
-                $this->user['secret']);
+            $account = $this->aweber->getAccount($this->user['token'], $this->user['secret']);
             $this->assertTrue(false, 'This should not run due to an exception');
         }
-        catch (Exception $e) {
-            $this->assertTrue(is_a($e, 'Exception'));
-        }
+        catch (Exception $e) { }
         MockData::$oauth = true;
     }
 
-# is this test a valid test?
-#    public function test_should_return_null_after_authorization() {
-#        $this->aweber->setAdapter($this->adapter);
-#        $account = $this->aweber->getAccount($this->user['token'],
-#            $this->user['secret']);
-#        $list = $account->lists->getById(123456);
-#        $this->assertTrue(empty($list));
-#    }
+    public function test_should_work_after_authorization() {
+        $this->aweber->setAdapter($this->adapter);
+        $account = $this->aweber->getAccount($this->user['token'], $this->user['secret']);
+        $list = $account->lists->getById(303449);
+        $this->assertEqual($list->id, 303449);
+    }
 
     /**
      * getAccount should load an AWeberEntry based on a single account
@@ -69,8 +67,8 @@ class TestAWeberAPI extends UnitTestCase {
      */
     public function test_getAccount() {
         $this->aweber->setAdapter($this->adapter);
-        $account = $this->aweber->getAccount($this->user['token'],
-            $this->user['secret']);
+        $account = $this->aweber->getAccount($this->user['token'], $this->user['secret']);
+
         $this->assertNotNull($account);
         $this->assertTrue(is_a($account, 'AWeberResponse'));
         $this->assertTrue(is_a($account, 'AWeberEntry'));

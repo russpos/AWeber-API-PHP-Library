@@ -10,7 +10,7 @@ require_once('aweber_entry.test.php');
 
 $test = &new GroupTest('All tests');
 $test->addTestCase(new TestAWeberAPI());
-$test->addTestCase(new OAuthAppliationTest());
+$test->addTestCase(new TestOAuthAppliation());
 $test->addTestCase(new TestAWeberCollection());
 $test->addTestCase(new TestAWeberCollectionFind());
 $test->addTestCase(new TestAWeberEntry());

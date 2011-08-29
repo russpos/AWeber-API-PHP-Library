@@ -1,5 +1,13 @@
 <?php
 
+
+class MockResponse {
+
+    public $body;
+    public $headers;
+
+}
+
 class MockData {
 
     public static $oauth = true;
@@ -16,11 +24,9 @@ class MockData {
         else {
             $data = NULL;
         }
-        $json_data = json_decode($data, true);
-        if($json_data == null) {
-            # used for total_size_links
-            return intval($data);
-        }
-        return $json_data;
+
+        $mock_data = new MockData();
+        $mock_data->body = $data;
+        return $mock_data;
     }
 }

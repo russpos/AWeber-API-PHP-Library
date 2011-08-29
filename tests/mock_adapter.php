@@ -1,59 +1,43 @@
 <?php
 
+# if status is 201, 2nd arguement is link url, otherwise its response body
+$map = array();
+$map['DELETE']['/accounts/1'                                                                                    ] = array(403, 'error');
+$map['DELETE']['/accounts/1/lists/303449'                                                                       ] = array(200, null);
+$map['GET'   ]['/accounts'                                                                                      ] = array(200, 'accounts/page1');
+$map['GET'   ]['/accounts/1'                                                                                    ] = array(200, 'accounts/1');
+$map['GET'   ]['/accounts/1/lists'                                                                              ] = array(200, 'lists/page1');
+$map['GET'   ]['/accounts/1/lists/303449'                                                                       ] = array(200, 'lists/303449');
+$map['GET'   ]['/accounts/1/lists/303449/campaigns'                                                             ] = array(200, 'campaigns/303449');
+$map['GET'   ]['/accounts/1/lists/303449/custom_fields'                                                         ] = array(200, 'custom_fields/303449');
+$map['GET'   ]['/accounts/1/lists/303449/custom_fields/1'                                                       ] = array(200, 'custom_fields/1');
+$map['GET'   ]['/accounts/1/lists/303449/custom_fields/2'                                                       ] = array(200, 'custom_fields/2');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers'                                                           ] = array(200, 'subscribers/page1');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers/1'                                                         ] = array(200, 'subscribers/1');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers/2'                                                         ] = array(200, 'subscribers/2');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?email=nonexist%40example.com&ws.op=find&ws.show=total_size'] = array(200, 'subscribers/nonexist_tsl');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?email=nonexist%40example.com&ws.op=find'                   ] = array(200, 'subscribers/nonexist');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find&ws.show=total_size' ] = array(200, 'subscribers/find_tsl');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find'                    ] = array(200, 'subscribers/find');
+$map['GET'   ]['/accounts/1/lists/505454'                                                                       ] = array(200, 'lists/505454');
+$map['GET'   ]['/accounts/1/lists/505454/subscribers/3'                                                         ] = array(200, 'subscribers/3');
+$map['GET'   ]['/accounts/1/lists?ws.size=20&ws.start=20'                                                       ] = array(200, 'lists/page2');
+$map['GET'   ]['/accounts/1?email=joe%40example.com&ws.op=findSubscribers&ws.show=total_size'                   ] = array(200, 'accounts/findSubscribers_ts');
+$map['GET'   ]['/accounts/1?email=joe%40example.com&ws.op=findSubscribers'                                      ] = array(200, 'accounts/findSubscribers');
+$map['GET'   ]['/accounts/1?ws.op=getWebFormSplitTests'                                                         ] = array(200, 'accounts/webFormSplitTests');
+$map['GET'   ]['/accounts/1?ws.op=getWebForms'                                                                  ] = array(200, 'accounts/webForms');
+
+$map['PATCH' ]['/accounts/1/lists/303449'                                                                       ] = array(209, 'lists/303449');
+$map['PATCH' ]['/accounts/1/lists/303449/subscribers/1'                                                         ] = array(209, 'subscribers/1');
+$map['PATCH' ]['/accounts/1/lists/505454'                                                                       ] = array(404, 'error');
+
+$map['POST'  ]['/accounts/1/lists/303449/custom_fields'                                                         ] = array(201, '/accounts/1/lists/303449/custom_fields/2');
+$map['POST'  ]['/accounts/1/lists/303449/subscribers/1'                                                         ] = array(201, '/accounts/1/lists/505454/subscribers/3');
+$map['POST'  ]['/accounts/1/lists/303449/subscribers/2'                                                         ] = array(400, 'error');
+
 class MockOAuthAdapter extends OAuthApplication {
 
     public $requestsMade = array();
-
-    # TODO: make this consistant
-    protected $requests = array(
-        'GET' => array(
-            # the new way
-            '/accounts'                                => 'accounts/page1',
-            '/accounts/1'                              => 'accounts/1',
-            '/accounts/1?email=joe%40example.com&ws.op=findSubscribers' => 'accounts/findSubscribers',
-            '/accounts/1?email=joe%40example.com&ws.op=findSubscribers&ws.show=total_size' => 'accounts/findSubscribers_ts',
-            '/accounts/1?ws.op=getWebForms'            => 'accounts/webForms',
-            '/accounts/1?ws.op=getWebFormSplitTests'   => 'accounts/webFormSplitTests',
-            '/accounts/1/lists'                        => 'lists/page1',
-            '/accounts/1/lists?ws.size=20&ws.start=20' => 'lists/page2',
-            '/accounts/1/lists/303449'                 => 'lists/303449',
-            '/accounts/1/lists/505454'                 => 'lists/505454',
-            '/accounts/1/lists/303449/campaigns'       => 'campaigns/303449',
-            '/accounts/1/lists/303449/custom_fields'   => 'custom_fields/303449',
-            '/accounts/1/lists/303449/custom_fields/1' => 'custom_fields/1',
-            '/accounts/1/lists/303449/custom_fields/2' => 'custom_fields/2',
-            '/accounts/1/lists/303449/subscribers'     => 'subscribers/page1',
-            '/accounts/1/lists/303449/subscribers/1'   => 'subscribers/1',
-            '/accounts/1/lists/303449/subscribers/2'   => 'subscribers/2',
-            '/accounts/1/lists/505454/subscribers/3'   => 'subscribers/3',
-            '/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find' => 'subscribers/find',
-            '/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find&ws.show=total_size' => 'subscribers/find_tsl',
-            '/accounts/1/lists/303449/subscribers?email=nonexist%40example.com&ws.op=find' => 'subscribers/nonexist',
-            '/accounts/1/lists/303449/subscribers?email=nonexist%40example.com&ws.op=find&ws.show=total_size' => 'subscribers/nonexist_tsl',
-        ),
-        'DELETE' => array(
-            '/accounts/1/lists/303449'                 => '200',
-            '/accounts/1'                              => '404',
-        ),
-        'PATCH' => array(
-            '/accounts/1/lists/303449'                 => '209',
-            '/accounts/1/lists/303450'                 => '404',
-            '/accounts/1/lists/303449/subscribers/1'   => '209',
-        ),
-        'POST' => array(
-            '/accounts/1/lists/303449/custom_fields' => Array(
-                'Status-Code' => '201',
-                'Location' => '/accounts/1/lists/303449/custom_fields/2',
-            ),
-            '/accounts/1/lists/303449/subscribers/1' => Array(
-                'Status-Code' => '201',
-                'Location' => '/accounts/1/lists/505454/subscribers/3',
-            ),
-            '/accounts/1/lists/303449/subscribers/2' => Array(
-                'Status-Code' => '400',
-            ),
-        )
-    );
 
     public function addRequest($method, $uri, $data) {
         $this->requestsMade[] = array(
@@ -66,29 +50,32 @@ class MockOAuthAdapter extends OAuthApplication {
         $this->requestsMade = array();
     }
 
-    public function request($method, $uri, $data=array(), $options=array()) {
+    public function makeRequest($method, $url, $data=array()) {
+        global $map;
+
+        # append params to url (for fixtures)
+        $uri = str_replace($this->app->baseUri, '', $url);
         if ($method == 'GET' && !empty($data)) {
             $uri = $uri.'?'. http_build_query($data);
         }
+
+        # extract response map parameters
+        $status = $map[$method][$uri][0];
+        $resource = $map[$method][$uri][1];
+
+        # record the request
         $this->addRequest($method, $uri, $data);
 
-        if (!empty($options['return'])) {
-            if ($options['return'] == 'status') {
-                return $this->requests[$method][$uri];
-            }
-            if ($options['return'] == 'headers') {
-                return $this->requests[$method][$uri];
-            }
-        }
+        # load response from fixture and return data
+        $mock_data = MockData::load($resource);
+        $headers = array();
+        $headers['Status-Code'] = $status;
 
-        $data = MockData::load($this->requests[$method][$uri]);
-        if (empty($options['allow_empty']) && empty($data)) {
-            throw new AWeberResponseError($uri);
+        if($status == 201) {
+            $headers['Location'] = $resource;
         }
-        $this->parseAsError($data);
-        return $data;
+        $mock_data->headers = $headers;
+
+        return $mock_data;
     }
-
 }
-
-

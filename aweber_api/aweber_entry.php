@@ -72,9 +72,8 @@ class AWeberEntry extends AWeberResponse {
      *      if the delete request failed.
      */
     public function delete() {
-        $status = $this->adapter->request('DELETE', $this->url, array(), array('return' => 'status'));
-        if (substr($status, 0, 2) == '20') return true;
-        return false;
+        $this->adapter->request('DELETE', $this->url, array(), array('return' => 'status'));
+        return true;
     }
 
     /**
@@ -97,9 +96,6 @@ class AWeberEntry extends AWeberResponse {
         # Move Resource
         $params = array('ws.op' => 'move', 'list_link' => $list->self_link);
         $data = $this->adapter->request('POST', $this->url, $params, array('return' => 'headers'));
-        if ($data['Status-Code']  !==  '201') {
-            return false;
-        }
 
         # Return new Resource
         $url = $data['Location'];
@@ -117,9 +113,6 @@ class AWeberEntry extends AWeberResponse {
     public function save() {
         if (!empty($this->_localDiff)) {
             $data = $this->adapter->request('PATCH', $this->url, $this->_localDiff, array('return' => 'status'));
-            if (substr($data, 0, 2) !== '20') {
-                return false;
-            }
         }
         $this->_localDiff = array();
         return true;
@@ -188,7 +181,7 @@ class AWeberEntry extends AWeberResponse {
         $data = $this->adapter->request('GET', $this->url, $params);
 
         $ts_params = array_merge($params, array('ws.show' => 'total_size'));
-        $total_size = $this->adapter->request('GET', $this->url, $ts_params, array('allow_empty' => 'true'));
+        $total_size = $this->adapter->request('GET', $this->url, $ts_params, array('return' => 'integer'));
 
         # return collection
         $data['total_size'] = $total_size;

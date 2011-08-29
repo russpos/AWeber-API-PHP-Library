@@ -3,8 +3,7 @@
 class TestAWeberCollectionFind extends UnitTestCase {
 
      public function setUp() {
-         $this->adapter = new MockOAuthAdapter();
-         $this->adapter->app = new AWeberServiceProvider();
+         $this->adapter = get_mock_adapter();
          $this->subscribers = $this->_getCollection('/accounts/1/lists/303449/subscribers');
          $this->lists = $this->_getCollection('/accounts/1/lists');
          $this->adapter->clearRequests();
@@ -73,13 +72,12 @@ class TestAWeberCollectionFind extends UnitTestCase {
 class TestAWeberCreateEntry extends UnitTestCase {
 
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
-        $this->adapter->app = new AWeberServiceProvider();
+        $this->adapter = get_mock_adapter();
 
-         # Get CustomFields
-         $url = '/accounts/1/lists/303449/custom_fields';
-         $data = $this->adapter->request('GET', $url);
-         $this->custom_fields = new AWeberCollection($data, $url, $this->adapter);
+        # Get CustomFields
+        $url = '/accounts/1/lists/303449/custom_fields';
+        $data = $this->adapter->request('GET', $url);
+        $this->custom_fields = new AWeberCollection($data, $url, $this->adapter);
 
     }
 
@@ -114,8 +112,10 @@ class TestAWeberCollection extends UnitTestCase {
      * data for requests, and creates a new collection.
      */
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
-        $this->collection = new AWeberCollection(MockData::load('lists/page3'), '/accounts/1/lists', $this->adapter);
+        $this->adapter = get_mock_adapter();
+        $this->url = '/accounts/1/lists';
+        $data = $this->adapter->request('GET', $this->url);
+        $this->collection = new AWeberCollection($data, $this->url, $this->adapter);
     }
 
     /**
@@ -129,7 +129,7 @@ class TestAWeberCollection extends UnitTestCase {
      * Should have the URL used to generate this collection 
      */
     public function testShouldHaveURL() {
-        $this->assertEqual($this->collection->url, '/accounts/1/lists');
+        $this->assertEqual($this->collection->url, $this->url);
     }
 
     /**
@@ -147,7 +147,7 @@ class TestAWeberCollection extends UnitTestCase {
         $entry = $this->collection[0];
         $this->assertTrue(is_a($entry, 'AWeberResponse'));
         $this->assertTrue(is_a($entry, 'AWeberEntry'));
-        $this->assertEqual($entry->id, 251847);
+        $this->assertEqual($entry->id, 1701533);
     }
 
     public function testShouldKnowItsCollectionType() {
@@ -167,9 +167,11 @@ class TestAWeberCollection extends UnitTestCase {
      */
     public function testShouldLazilyLoadAdditionalPages() {
         $this->adapter->clearRequests();
+        
+        $this->assertEqual(sizeof($this->collection->data['entries']), 20);
 
         $entry = $this->collection[19];
-        $this->assertEqual($entry->id, 50000003);
+        $this->assertEqual($entry->id, 1424745);
         $this->assertTrue(empty($this->adapter->requestsMade));
 
         $entry = $this->collection[20];
@@ -207,12 +209,14 @@ class TestAWeberCollection extends UnitTestCase {
     public function testShouldAllowGetById() {
         $id = 303449;
         $name = 'default303449';
+        $this->adapter->clearRequests();
         $entry = $this->collection->getById($id);
 
         $this->assertEqual($entry->id, $id);
         $this->assertEqual($entry->name, $name);
         $this->assertTrue(is_a($entry, 'AWeberEntry'));
         $this->assertEqual(count($this->adapter->requestsMade), 1);
+
 
         $this->assertEqual($this->adapter->requestsMade[0]['uri'],
             '/accounts/1/lists/303449');
@@ -232,8 +236,7 @@ class TestAWeberCollection extends UnitTestCase {
 class TestGettingCollectionParentEntry extends UnitTestCase {
 
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
-        $this->adapter->app = new AWeberServiceProvider();
+        $this->adapter = get_mock_adapter();
         $url = '/accounts/1/lists';
         $data = $this->adapter->request('GET', $url);
         $this->lists = new AWeberCollection($data, $url, $this->adapter);

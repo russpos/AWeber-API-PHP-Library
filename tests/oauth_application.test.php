@@ -3,7 +3,7 @@ if (!class_exists('Object')) {
     class Object {}
 }
 
-class OAuthAppliationTest extends UnitTestCase {
+class TestOAuthAppliation extends UnitTestCase {
 
     public function setUp() {
         $this->oauth = new OAuthApplication($parentApp);

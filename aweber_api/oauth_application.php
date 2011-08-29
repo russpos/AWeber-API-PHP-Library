@@ -124,6 +124,9 @@ class OAuthApplication implements AWeberOAuthAdapter {
             if ($options['return'] == 'headers') {
                 return $response->headers;
             }
+            if ($options['return'] == 'integer') {
+                return intval($response->body);
+            }
         }
         $data = json_decode($response->body, true);
         if (empty($options['allow_empty']) && empty($data)) {

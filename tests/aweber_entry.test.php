@@ -1,5 +1,11 @@
 <?php
 
+function get_mock_adapter() {
+    // function to return a mock adapter
+    $serviceProvider = new AWeberServiceProvider();
+    return new MockOAuthAdapter($serviceProvider);
+}
+
 
 class TestAWeberEntry extends UnitTestCase {
 
@@ -8,8 +14,7 @@ class TestAWeberEntry extends UnitTestCase {
      * data and AWeberEntry based on list 303449
      */
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
-
+        $this->adapter = get_mock_adapter();
         $url = '/accounts/1/lists/303449';
         $data = $this->adapter->request('GET', $url);
         $this->entry = new AWeberEntry($data, $url, $this->adapter);
@@ -70,14 +75,8 @@ class TestAWeberEntry extends UnitTestCase {
      */
     public function testShouldThrowExceptionIfNotImplemented() {
         $this->adapter->clearRequests();
-        try {
-            $obj = $this->entry->something_not_implemented;
-            $this->assertFalse(true, "This should not get called due to exception raising.");
-        }
-        catch (Exception $e) {
-            $this->assertTrue(is_a($e, 'AWeberException'));
-            $this->assertTrue(is_a($e, 'AWeberResourceNotImplemented'));
-        }
+        $this->expectException(AWeberResourceNotImplemented);
+        $obj = $this->entry->something_not_implemented;
         $this->assertEqual(count($this->adapter->requestsMade), 0);
     }
 
@@ -121,9 +120,8 @@ class TestAWeberEntry extends UnitTestCase {
         $data = $this->adapter->request('GET', $url);
         $entry = new AWeberEntry($data, $url, $this->adapter);
 
-        // Can't delete account
-        $resp = $entry->delete();
-        $this->assertIdentical($resp, false);
+        $this->expectException(APIException, "SimulatedException");
+        $entry->delete();
     }
 
     /**
@@ -159,13 +157,13 @@ class TestAWeberEntry extends UnitTestCase {
         $data = $this->adapter->request('GET', $url);
         $entry = new AWeberEntry($data, $url, $this->adapter);
         $entry->name = 'foobarbaz';
+        $this->expectException(APIException, "SimulatedException");
         $resp = $entry->save();
-        $this->assertIdentical($resp, false);
     }
 
     /**
      * Should keep track of whether or not this entry is "dirty".  It should
-     * not Color save calls if it hasn't been altered since the last successful
+     * not issue save calls if it hasn't been altered since the last successful
      * load / save operation.
      */
     public function testShouldMaintainDirtiness() {
@@ -185,8 +183,7 @@ class TestAWeberEntry extends UnitTestCase {
 class AccountTestCase extends UnitTestCase {
 
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
-        $this->adapter->app = new AWeberServiceProvider();
+        $this->adapter = get_mock_adapter();
         $url = '/accounts/1';
         $data = $this->adapter->request('GET', $url);
         $this->entry = new AWeberEntry($data, $url, $this->adapter);
@@ -280,8 +277,7 @@ class TestAccountFindSubscribers extends AccountTestCase {
 class TestAWeberSubscriberEntry extends UnitTestCase {
 
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
-        $this->adapter->app = new AWeberServiceProvider();
+        $this->adapter = get_mock_adapter();
         $url = '/accounts/1/lists/303449/subscribers/1';
         $data = $this->adapter->request('GET', $url);
         $this->entry = new AWeberEntry($data, $url, $this->adapter);
@@ -331,22 +327,21 @@ class TestAWeberSubscriberEntry extends UnitTestCase {
 class TestAWeberMoveEntry extends UnitTestCase {
 
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
-        $this->adapter->app = new AWeberServiceProvider();
+        $this->adapter = get_mock_adapter();
 
-         # Get Subscriber
-         $url = '/accounts/1/lists/303449/subscribers/1';
-         $data = $this->adapter->request('GET', $url);
-         $this->subscriber = new AWeberEntry($data, $url, $this->adapter);
+        # Get Subscriber
+        $url = '/accounts/1/lists/303449/subscribers/1';
+        $data = $this->adapter->request('GET', $url);
+        $this->subscriber = new AWeberEntry($data, $url, $this->adapter);
 
-         $url = '/accounts/1/lists/303449/subscribers/2';
-         $data = $this->adapter->request('GET', $url);
-         $this->unsubscribed = new AWeberEntry($data, $url, $this->adapter);
+        $url = '/accounts/1/lists/303449/subscribers/2';
+        $data = $this->adapter->request('GET', $url);
+        $this->unsubscribed = new AWeberEntry($data, $url, $this->adapter);
 
-         # Different List
-         $url = '/accounts/1/lists/505454';
-         $data = $this->adapter->request('GET', $url);
-         $this->different_list = new AWeberEntry($data, $url, $this->adapter);
+        # Different List
+        $url = '/accounts/1/lists/505454';
+        $data = $this->adapter->request('GET', $url);
+        $this->different_list = new AWeberEntry($data, $url, $this->adapter);
     }
 
     /**
@@ -377,8 +372,8 @@ class TestAWeberMoveEntry extends UnitTestCase {
      public function testMove_Failure() {
 
          $this->adapter->clearRequests();
-         $resp = $this->unsubscribed->move($this->different_list);
-
+         $this->expectException(APIException, "SimulatedException");
+         $this->unsubscribed->move($this->different_list);
          $this->assertEqual(sizeOf($this->adapter->requestsMade), 1);
 
          $req = $this->adapter->requestsMade[0];
@@ -387,8 +382,6 @@ class TestAWeberMoveEntry extends UnitTestCase {
          $this->assertEqual($req['data'], array(
              'ws.op' => 'move',
              'list_link' => $this->different_list->self_link));
-
-         $this->assertFalse($resp);
          return;
     }
 }
@@ -396,8 +389,7 @@ class TestAWeberMoveEntry extends UnitTestCase {
 class TestGettingEntryParentEntry extends UnitTestCase {
 
     public function setUp() {
-        $this->adapter = new MockOAuthAdapter();
-        $this->adapter->app = new AWeberServiceProvider();
+        $this->adapter = get_mock_adapter();
         $url = '/accounts/1/lists/303449';
         $data = $this->adapter->request('GET', $url);
         $this->list = new AWeberEntry($data, $url, $this->adapter);
