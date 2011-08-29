@@ -10,7 +10,7 @@ Changelog:
  * Modified client library to raise an AWeberAPIException on any API errors (HTTP status >= 400)
  * Refactored tests for better code coverage
  * Refactored move and create methods to return the resource or raise an AWeberAPIException on error.
-
+ * added getActivity method to a subscriber entry.
 
 Basic Usage:
 ------------

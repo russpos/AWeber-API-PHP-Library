@@ -189,6 +189,27 @@ class AWeberEntry extends AWeberResponse {
         return new AWeberCollection($data, $url, $this->adapter);
     }
 
+    /**
+     * getActivity
+     *
+     * Returns analytics activity for a given subscriber
+     * @access public
+     * @return AWeberCollection
+     */
+    public function getActivity() {
+        $this->_methodFor(array('subscriber'));
+        $params = array('ws.op' => 'getActivity');
+        $data = $this->adapter->request('GET', $this->url, $params);
+
+        $ts_params = array_merge($params, array('ws.show' => 'total_size'));
+        $total_size = $this->adapter->request('GET', $this->url, $ts_params, array('return' => 'integer'));
+
+        # return collection
+        $data['total_size'] = $total_size;
+        $url = $this->url . '?'. http_build_query($params);
+        return new AWeberCollection($data, $url, $this->adapter);
+    }
+
     /** getParentEntry
      *
      * Gets an entry's parent entry

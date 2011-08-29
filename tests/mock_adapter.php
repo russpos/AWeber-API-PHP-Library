@@ -14,6 +14,8 @@ $map['GET'   ]['/accounts/1/lists/303449/custom_fields/1'                       
 $map['GET'   ]['/accounts/1/lists/303449/custom_fields/2'                                                       ] = array(200, 'custom_fields/2');
 $map['GET'   ]['/accounts/1/lists/303449/subscribers'                                                           ] = array(200, 'subscribers/page1');
 $map['GET'   ]['/accounts/1/lists/303449/subscribers/1'                                                         ] = array(200, 'subscribers/1');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers/1?ws.op=getActivity'                                       ] = array(200, 'subscribers/activity');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers/1?ws.op=getActivity&ws.show=total_size'                    ] = array(200, 'subscribers/activity_ts');
 $map['GET'   ]['/accounts/1/lists/303449/subscribers/2'                                                         ] = array(200, 'subscribers/2');
 $map['GET'   ]['/accounts/1/lists/303449/subscribers?email=nonexist%40example.com&ws.op=find&ws.show=total_size'] = array(200, 'subscribers/nonexist_tsl');
 $map['GET'   ]['/accounts/1/lists/303449/subscribers?email=nonexist%40example.com&ws.op=find'                   ] = array(200, 'subscribers/nonexist');

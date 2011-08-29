@@ -322,6 +322,12 @@ class TestAWeberSubscriberEntry extends UnitTestCase {
         $data = $this->adapter->requestsMade[0]['data'];
         $this->assertEqual($data['custom_fields']['Color'], 'Jeep');
     }
+
+    public function testShouldSupportGetActivity() {
+        $activity = $this->entry->getActivity();
+        $this->assertTrue(is_a($activity, 'AWeberCollection'));
+        $this->assertEqual($activity->total_size, 1);
+    }
 }
 
 class TestAWeberMoveEntry extends UnitTestCase {
