@@ -10,7 +10,7 @@ class AWeberException extends Exception { }
  * @package
  * @version $id$
  */
-class APIException extends AWeberException {
+class AWeberAPIException extends AWeberException {
 
     public $type;
     public $status;

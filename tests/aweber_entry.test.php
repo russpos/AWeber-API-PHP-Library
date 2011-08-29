@@ -120,7 +120,7 @@ class TestAWeberEntry extends UnitTestCase {
         $data = $this->adapter->request('GET', $url);
         $entry = new AWeberEntry($data, $url, $this->adapter);
 
-        $this->expectException(APIException, "SimulatedException");
+        $this->expectException(AWeberAPIException, "SimulatedException");
         $entry->delete();
     }
 
@@ -157,7 +157,7 @@ class TestAWeberEntry extends UnitTestCase {
         $data = $this->adapter->request('GET', $url);
         $entry = new AWeberEntry($data, $url, $this->adapter);
         $entry->name = 'foobarbaz';
-        $this->expectException(APIException, "SimulatedException");
+        $this->expectException(AWeberAPIException, "SimulatedException");
         $resp = $entry->save();
     }
 
@@ -372,7 +372,7 @@ class TestAWeberMoveEntry extends UnitTestCase {
      public function testMove_Failure() {
 
          $this->adapter->clearRequests();
-         $this->expectException(APIException, "SimulatedException");
+         $this->expectException(AWeberAPIException, "SimulatedException");
          $this->unsubscribed->move($this->different_list);
          $this->assertEqual(sizeOf($this->adapter->requestsMade), 1);
 

@@ -6,8 +6,10 @@ PHP library for easily integrating with the AWeber API.
 Changelog:
 ----------
 
-2011-08-25: v1.1.0
- * Modified client library to raise an APIException on any API errors (HTTP status >= 400)
+2011-08-29: v1.1.0
+ * Modified client library to raise an AWeberAPIException on any API errors (HTTP status >= 400)
+ * Refactored tests for better code coverage
+ * Refactored move and create methods to return the resource or raise an AWeberAPIException on error.
 
 
 Basic Usage:
@@ -21,7 +23,7 @@ https://labs.aweber.com/docs/php-library-walkthrough
 Handling Errors:
 ----------------
 Sometimes errors happen and your application should handle them appropriately.
-Whenever an API error occurs an APIException will be raised with a detailed 
+Whenever an API error occurs an AWeberAPIException will be raised with a detailed 
 error message and documentation link to explain whats wrong.
 
 You should wrap any calls to the API in a try/except block.
@@ -48,7 +50,7 @@ $account = $aweber->getAccount($accessKey, $accessSecret);
 
 try {
     $resource = $account->loadFromUrl('/accounts/idontexist');
-} catch (APIException $exc) {
+} catch (AWeberAPIException $exc) {
     print "<li> $exc->type on $exc->url, refer to $exc->message for more info ...<br>";
 }
 

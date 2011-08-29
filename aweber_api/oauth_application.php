@@ -114,7 +114,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
 
         if($response->headers['Status-Code'] >= 400) {
             $data = json_decode($response->body, true);
-            throw new APIException($data['error'], $url);
+            throw new AWeberAPIException($data['error'], $url);
         }
 
         if (!empty($options['return'])) {
