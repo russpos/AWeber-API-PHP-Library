@@ -106,6 +106,16 @@ class OAuthApplication implements AWeberOAuthAdapter {
     public function request($method, $uri, $data = array(), $options = array()) {
         $uri = $this->app->removeBaseUri($uri);
         $url = $this->app->getBaseUri() . $uri;
+
+        # WARNING: non-primative items in data must be json serialized.
+        if ($method == 'POST' or $method == 'GET') {
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    $data[$key] = json_encode($value);
+                }
+            }
+        }
+
         $response = $this->makeRequest($method, $url, $data);
 
         if (!$response) {
