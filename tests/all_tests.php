@@ -7,10 +7,12 @@ require_once('aweber_api.test.php');
 require_once('oauth_application.test.php');
 require_once('aweber_collection.test.php');
 require_once('aweber_entry.test.php');
+require_once('multi_version.test.php');
 
 $test = &new GroupTest('All tests');
 $test->addTestCase(new TestAWeberAPI());
 $test->addTestCase(new TestOAuthAppliation());
+$test->addTestCase(new TestMultipleInstalledVersions());
 $test->addTestCase(new TestAWeberCollection());
 $test->addTestCase(new TestAWeberCollectionFind());
 $test->addTestCase(new TestAWeberEntry());
