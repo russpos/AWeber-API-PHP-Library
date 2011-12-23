@@ -214,7 +214,7 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * _makeEntry
      *
      * Creates an entry object from the given entry data.  Optionally can take 
-     * the id and URL of the entry, though that data can be infered from the
+     * the id AND URL of the entry, though that data can be infered from the
      * context in which _makeEntry is being called.
      *
      * @param mixed $data   Array of data returned from an API request for 
@@ -224,16 +224,16 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * @access protected
      * @return void
      */
-    protected function _makeEntry($data, $id = false, $url= false) {
-        if (!$id) {
-            $id = $data['id'];
-        }
-        if (!$url) {
+    protected function _makeEntry($data, $id = false, $url = false) {
+        if ((!$url) or (!$id)) {
+            // if either the url or id is omitted, grab the url from the
+            // self_link of the resource
+            $url = $this->adapter->app->removeBaseUri($data['self_link']);
+        } else {
             $url = "{$this->url}/{$id}";
         }
         return new AWeberEntry($data, $url, $this->adapter);
     }
-
 
     /**
      * ArrayAccess interface methods
