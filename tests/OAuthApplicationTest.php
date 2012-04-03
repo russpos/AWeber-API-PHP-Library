@@ -3,7 +3,7 @@ if (!class_exists('Object')) {
     class Object {}
 }
 
-class TestOAuthAppliation extends UnitTestCase {
+class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->oauth = new OAuthApplication($parentApp);
@@ -35,7 +35,7 @@ class TestOAuthAppliation extends UnitTestCase {
             'keyB' => 'yet another value',
         );
 
-        $this->assertEqual(
+        $this->assertEquals(
             'keyA=Some%20Value&keyB=yet%20another%20value&keyC=some%20other%20value',
             $this->oauth->buildData($data));
     }
@@ -101,7 +101,7 @@ class TestOAuthAppliation extends UnitTestCase {
         $sigKey  = 'gdgdfet4gdffgd4etgr'; // Random string as well
         $signature  = $this->oauth->createSignature($sigBase, $sigKey);
         $signature2 = $this->oauth->createSignature($sigBase, $sigKey);
-        $this->assertEqual($signature, $signature2, 'Signatures with same parameters are identical.');
+        $this->assertEquals($signature, $signature2, 'Signatures with same parameters are identical.');
         $sigKey = $sigKey.'1';
 
         $sig3 = $this->oauth->createSignature($sigBase, $sigKey);
@@ -118,11 +118,11 @@ class TestOAuthAppliation extends UnitTestCase {
      */
     public function testGetVersion() {
         $version = $this->oauth->version;
-        $this->assertEqual($version, '1.0', 'Default version is 1.0');
+        $this->assertEquals($version, '1.0', 'Default version is 1.0');
     }
 
     /**
-     * testOAuthUser 
+     * testOAuthUser
      *
      * Tests the the OAuthUser class exists and has all its necessary data
      * @access public
@@ -157,7 +157,7 @@ class TestOAuthAppliation extends UnitTestCase {
 
         return array($user, $data);
     }
- 
+
     /**
      * testCreatSignatureKey
      *
@@ -170,12 +170,12 @@ class TestOAuthAppliation extends UnitTestCase {
         $this->oauth->user = $user;
 
         $sigKey = $this->oauth->createSignatureKey();
-        $this->assertEqual('CONSUMERSECRET&abcdefg', $sigKey); //, 'Signature key generated matches');
+        $this->assertEquals('CONSUMERSECRET&abcdefg', $sigKey); //, 'Signature key generated matches');
     }
 
     /**
-     * testGetOAuthRequestData 
-     * 
+     * testGetOAuthRequestData
+     *
      * @access public
      * @return void
      */
@@ -217,8 +217,8 @@ class TestOAuthAppliation extends UnitTestCase {
 
     public function testMergeOAuthData() {
         list($mergeData, $requestData) = $this->generateRequestData();
-        $this->assertEqual($mergeData['key1'], $requestData['key1']);
-        $this->assertEqual($mergeData['oauth_consumer_key'], $this->oauth->consumerKey);
+        $this->assertEquals($mergeData['key1'], $requestData['key1']);
+        $this->assertEquals($mergeData['oauth_consumer_key'], $this->oauth->consumerKey);
     }
 
     public function testCreateSignatureBase() {
@@ -239,15 +239,15 @@ class TestOAuthAppliation extends UnitTestCase {
 
         $signedData = $this->oauth->signRequest($method, $url, $data);
         foreach ($data as $key => $val) {
-            $this->assertEqual($signedData[$key], $val, 'Signed data has correct value for "'.$key.'"');
+            $this->assertEquals($signedData[$key], $val, 'Signed data has correct value for "'.$key.'"');
         }
 
         $this->assertTrue(!empty($signedData['oauth_signature']));
     }
 
     /**
-     * testPrepareRequest 
-     * 
+     * testPrepareRequest
+     *
      * @access public
      * @return void
      */
@@ -258,7 +258,7 @@ class TestOAuthAppliation extends UnitTestCase {
 
         $signedData = $this->oauth->prepareRequest($method, $url, $requestData);
 
-        // Test that a nonce and timestamp was generated, then remove the one from our base data so that we 
+        // Test that a nonce and timestamp was generated, then remove the one from our base data so that we
         // don't try to compare the two. They should still be different.
         $this->assertTrue(!empty($signedData['oauth_nonce']), 'Verify nonce was generated');
         $this->assertTrue(!empty($signedData['oauth_timestamp']), 'Verify nonce was generated');
@@ -266,15 +266,15 @@ class TestOAuthAppliation extends UnitTestCase {
         unset($data['oauth_timestamp']);
 
         foreach ($data as $key => $val) {
-            $this->assertEqual($signedData[$key], $val, 'Signed data has correct value for "'.$key.'"');
+            $this->assertEquals($signedData[$key], $val, 'Signed data has correct value for "'.$key.'"');
         }
 
         $this->assertTrue(!empty($signedData['oauth_signature']));
     }
 
     /**
-     * testParseResponse 
-     * 
+     * testParseResponse
+     *
      * @access public
      * @return void
      */

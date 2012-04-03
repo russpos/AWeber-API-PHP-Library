@@ -1,6 +1,6 @@
 <?php
 
-class TestAWeberCollectionFind extends UnitTestCase {
+class TestAWeberCollectionFind extends PHPUnit_Framework_TestCase {
 
      public function setUp() {
          $this->adapter = get_mock_adapter();
@@ -26,20 +26,20 @@ class TestAWeberCollectionFind extends UnitTestCase {
 
         # Asserts on the API request
         $expected_url = $this->subscribers->url . '?email=someone%40example.com&ws.op=find';
-        $this->assertEqual(sizeOf($this->adapter->requestsMade), 2);
+        $this->assertEquals(sizeOf($this->adapter->requestsMade), 2);
         $req = $this->adapter->requestsMade[0];
-        $this->assertEqual($req['method'], 'GET');
-        $this->assertEqual($req['uri'], $expected_url);
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($req['uri'], $expected_url);
 
         $req = $this->adapter->requestsMade[1];
-        $this->assertEqual($req['method'], 'GET');
-        $this->assertEqual($req['uri'], $expected_url . "&ws.show=total_size");
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($req['uri'], $expected_url . "&ws.show=total_size");
 
         # Asserts on the returned data
         $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));
-        $this->assertEqual($this->adapter, $found_subscribers->adapter);
-        $this->assertEqual($found_subscribers->url, $this->subscribers->url);
-        $this->assertEqual($found_subscribers->total_size, 1);
+        $this->assertEquals($this->adapter, $found_subscribers->adapter);
+        $this->assertEquals($found_subscribers->url, $this->subscribers->url);
+        $this->assertEquals($found_subscribers->total_size, 1);
      }
 
     /**
@@ -51,25 +51,25 @@ class TestAWeberCollectionFind extends UnitTestCase {
 
         # Asserts on the API request
         $expected_url = $this->subscribers->url . '?email=nonexist%40example.com&ws.op=find';
-        $this->assertEqual(sizeOf($this->adapter->requestsMade), 2);
+        $this->assertEquals(sizeOf($this->adapter->requestsMade), 2);
         $req = $this->adapter->requestsMade[0];
-        $this->assertEqual($req['method'], 'GET');
-        $this->assertEqual($req['uri'], $expected_url);
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($req['uri'], $expected_url);
 
         $req = $this->adapter->requestsMade[1];
-        $this->assertEqual($req['method'], 'GET');
-        $this->assertEqual($req['uri'], $expected_url . "&ws.show=total_size");
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($req['uri'], $expected_url . "&ws.show=total_size");
 
         # Asserts on the returned data
         $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));
-        $this->assertEqual($this->adapter, $found_subscribers->adapter);
-        $this->assertEqual($found_subscribers->url, $this->subscribers->url);
-        $this->assertEqual($found_subscribers->total_size, 0);
+        $this->assertEquals($this->adapter, $found_subscribers->adapter);
+        $this->assertEquals($found_subscribers->url, $this->subscribers->url);
+        $this->assertEquals($found_subscribers->total_size, 0);
      }
 
 }
 
-class TestAWeberCreateEntry extends UnitTestCase {
+class TestAWeberCreateEntry extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->adapter = get_mock_adapter();
@@ -90,22 +90,22 @@ class TestAWeberCreateEntry extends UnitTestCase {
          $resp = $this->custom_fields->create(array('name' => 'AwesomeField'));
 
 
-         $this->assertEqual(sizeOf($this->adapter->requestsMade), 2);
+         $this->assertEquals(sizeOf($this->adapter->requestsMade), 2);
 
          $req = $this->adapter->requestsMade[0];
-         $this->assertEqual($req['method'], 'POST');
-         $this->assertEqual($req['uri'], $this->custom_fields->url);
-         $this->assertEqual($req['data'], array(
+         $this->assertEquals($req['method'], 'POST');
+         $this->assertEquals($req['uri'], $this->custom_fields->url);
+         $this->assertEquals($req['data'], array(
              'ws.op' => 'create',
              'name' => 'AwesomeField'));
 
          $req = $this->adapter->requestsMade[1];
-         $this->assertEqual($req['method'], 'GET');
-         $this->assertEqual($req['uri'], '/accounts/1/lists/303449/custom_fields/2');
+         $this->assertEquals($req['method'], 'GET');
+         $this->assertEquals($req['uri'], '/accounts/1/lists/303449/custom_fields/2');
      }
 }
 
-class TestAWeberCollection extends UnitTestCase {
+class TestAWeberCollection extends PHPUnit_Framework_TestCase {
 
     /**
      * Run before each test.  Sets up mock adapter, which uses fixture
@@ -122,14 +122,14 @@ class TestAWeberCollection extends UnitTestCase {
      * Should have the total size available.
      */
     public function testShouldHaveTotalSize() {
-        $this->assertEqual($this->collection->total_size, 24);
+        $this->assertEquals($this->collection->total_size, 24);
     }
 
     /**
-     * Should have the URL used to generate this collection 
+     * Should have the URL used to generate this collection
      */
     public function testShouldHaveURL() {
-        $this->assertEqual($this->collection->url, $this->url);
+        $this->assertEquals($this->collection->url, $this->url);
     }
 
     /**
@@ -147,11 +147,11 @@ class TestAWeberCollection extends UnitTestCase {
         $entry = $this->collection[0];
         $this->assertTrue(is_a($entry, 'AWeberResponse'));
         $this->assertTrue(is_a($entry, 'AWeberEntry'));
-        $this->assertEqual($entry->id, 1701533);
+        $this->assertEquals($entry->id, 1701533);
     }
 
     public function testShouldKnowItsCollectionType() {
-        $this->assertEqual($this->collection->type, 'lists');
+        $this->assertEquals($this->collection->type, 'lists');
     }
 
     /**
@@ -167,20 +167,20 @@ class TestAWeberCollection extends UnitTestCase {
      */
     public function testShouldLazilyLoadAdditionalPages() {
         $this->adapter->clearRequests();
-        
-        $this->assertEqual(sizeof($this->collection->data['entries']), 20);
+
+        $this->assertEquals(sizeof($this->collection->data['entries']), 20);
 
         $entry = $this->collection[19];
-        $this->assertEqual($entry->id, 1424745);
+        $this->assertEquals($entry->id, 1424745);
         $this->assertTrue(empty($this->adapter->requestsMade));
 
         $entry = $this->collection[20];
-        $this->assertEqual($entry->id, 1364473);
-        $this->assertEqual(count($this->adapter->requestsMade), 1);
+        $this->assertEquals($entry->id, 1364473);
+        $this->assertEquals(count($this->adapter->requestsMade), 1);
 
         $entry = $this->collection[21];
-        $this->assertEqual($entry->id, 1211626);
-        $this->assertEqual(count($this->adapter->requestsMade), 1);
+        $this->assertEquals($entry->id, 1211626);
+        $this->assertEquals(count($this->adapter->requestsMade), 1);
     }
 
     /**
@@ -197,10 +197,10 @@ class TestAWeberCollection extends UnitTestCase {
     public function testShouldAllowIteration() {
         $count = 0;
         foreach ($this->collection as $index => $entry) {
-            $this->assertEqual($index, $count);
+            $this->assertEquals($index, $count);
             $count++;
         }
-        $this->assertEqual($count, $this->collection->total_size);
+        $this->assertEquals($count, $this->collection->total_size);
     }
 
     /**
@@ -212,28 +212,28 @@ class TestAWeberCollection extends UnitTestCase {
         $this->adapter->clearRequests();
         $entry = $this->collection->getById($id);
 
-        $this->assertEqual($entry->id, $id);
-        $this->assertEqual($entry->name, $name);
+        $this->assertEquals($entry->id, $id);
+        $this->assertEquals($entry->name, $name);
         $this->assertTrue(is_a($entry, 'AWeberEntry'));
-        $this->assertEqual(count($this->adapter->requestsMade), 1);
+        $this->assertEquals(count($this->adapter->requestsMade), 1);
 
 
-        $this->assertEqual($this->adapter->requestsMade[0]['uri'],
+        $this->assertEquals($this->adapter->requestsMade[0]['uri'],
             '/accounts/1/lists/303449');
     }
 
     /**
-     * Should implement the countable interface, allowing count() and sizeOf() 
+     * Should implement the countable interface, allowing count() and sizeOf()
      * functions to work properly
      */
     public function testShouldAllowCountOperations() {
-        $this->assertEqual(count($this->collection), $this->collection->total_size);
-        $this->assertEqual(sizeOf($this->collection), $this->collection->total_size);
+        $this->assertEquals(count($this->collection), $this->collection->total_size);
+        $this->assertEquals(sizeOf($this->collection), $this->collection->total_size);
     }
 
 }
 
-class TestGettingCollectionParentEntry extends UnitTestCase {
+class TestGettingCollectionParentEntry extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->adapter = get_mock_adapter();
@@ -251,17 +251,17 @@ class TestGettingCollectionParentEntry extends UnitTestCase {
     public function testListsParentShouldBeAccount() {
         $entry = $this->lists->getParentEntry();
         $this->assertTrue(is_a($entry, 'AWeberEntry'));
-        $this->assertEqual($entry->type, 'account');
+        $this->assertEquals($entry->type, 'account');
     }
 
     public function testCustomFieldsParentShouldBeList() {
         $entry = $this->customFields->getParentEntry();
         $this->assertTrue(is_a($entry, 'AWeberEntry'));
-        $this->assertEqual($entry->type, 'list');
+        $this->assertEquals($entry->type, 'list');
     }
 
     public function testAccountsParentShouldBeNULL() {
         $entry = $this->accounts->getParentEntry();
-        $this->assertEqual($entry, NULL);
+        $this->assertEquals($entry, NULL);
     }
 }
