@@ -1,4 +1,6 @@
 <?php
+require_once('aweber_api/aweber_api.php');
+
 if (!class_exists('Object')) {
     class Object {}
 }
@@ -6,6 +8,7 @@ if (!class_exists('Object')) {
 class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
+        $parentApp = false;
         $this->oauth = new OAuthApplication($parentApp);
         $this->oauth->consumerSecret = 'CONSUMERSECRET';
         $this->oauth->consumerKey = 'consumer_key';
@@ -84,7 +87,7 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
         $sigBase = '342refd435gdfxw354xfbw364fdg'; // Random string
         $sigKey  = 'gdgdfet4gdffgd4etgr'; // Random string as well
         $signature = $this->oauth->createSignature($sigBase, $sigKey);
-        $this->assertTrue($signature, 'Returns a valid signature');
+        $this->assertNotEmpty($signature, 'Returns a valid signature');
         $this->assertTrue(strpos($signature, $sigBase) === false, 'Signature does not contain base');
         $this->assertTrue(strpos($signature, $sigKey) === false, 'Signature does not contain key');
     }
@@ -105,7 +108,7 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
         $sigKey = $sigKey.'1';
 
         $sig3 = $this->oauth->createSignature($sigBase, $sigKey);
-        $this->assertNotEqual($signature, $sig3, 'Changing key creates different signature');
+        $this->assertNotEquals($signature, $sig3, 'Changing key creates different signature');
     }
 
 
@@ -199,7 +202,7 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
         ksort($data);
         ksort($tempData);
 
-        $this->assertIdentical($data, $tempData, 'Aside from timestamp and nonce, the rest should be identical');
+        $this->assertSame($data, $tempData, 'Aside from timestamp and nonce, the rest should be identical');
     }
 
     public function generateRequestData() {
@@ -227,7 +230,7 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
         $url = 'http://www.someservice.com/chicken-nuggets';
 
         $baseString = $this->oauth->createSignatureBase($method, $url, $mergeData);
-        $this->assertTrue($baseString);
+        $this->assertNotEmpty($baseString);
         $this->assertTrue(strpos($baseString, $method) !== false);
         $this->assertTrue(strpos($baseString, urlencode($url))!== false);
     }
@@ -287,8 +290,7 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
             'oauth_token_secret' => 'GRRa1E7MMm526nql1hETKHMu2BvAXpvHaCu332TPAJ4',
             'oauth_callback_confirmed' => 'true',
         );
-        $this->assertIdentical($data, $dataShouldBe, 'Data is parsed correctly.');
+        $this->assertSame($data, $dataShouldBe, 'Data is parsed correctly.');
     }
 
 }
-?>
