@@ -24,7 +24,7 @@ class TestMultipleInstalledVersions extends UnitTestCase {
     public function test_multiple_includes() {
         global $errors;
         set_error_handler("myErrorHandler");
-        include("../aweber_api/aweber_api.php");
+        include("aweber_api/aweber_api.php");
         restore_error_handler();
 
         $this->assertEqual(count($errors), 1);
