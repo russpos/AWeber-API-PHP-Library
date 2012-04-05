@@ -1,5 +1,6 @@
 <?php
-
+require_once('aweber_api/aweber_api.php');
+require_once('mock_adapter.php');
 
 class TestAWeberEntry extends PHPUnit_Framework_TestCase {
 
@@ -69,7 +70,7 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
      */
     public function testShouldThrowExceptionIfNotImplemented() {
         $this->adapter->clearRequests();
-        $this->expectException(AWeberResourceNotImplemented);
+        $this->setExpectedException('AWeberResourceNotImplemented');
         $obj = $this->entry->something_not_implemented;
         $this->assertEquals(count($this->adapter->requestsMade), 0);
     }
@@ -99,7 +100,7 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
     public function testDelete() {
         $this->adapter->clearRequests();
         $resp = $this->entry->delete();
-        $this->assertIdentical($resp, true);
+        $this->assertSame($resp, true);
         $this->assertEquals(sizeOf($this->adapter->requestsMade), 1);
         $this->assertEquals($this->adapter->requestsMade[0]['method'], 'DELETE');
         $this->assertEquals($this->adapter->requestsMade[0]['uri'], $this->entry->url);
@@ -114,7 +115,7 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
         $data = $this->adapter->request('GET', $url);
         $entry = new AWeberEntry($data, $url, $this->adapter);
 
-        $this->expectException(AWeberAPIException, "SimulatedException");
+        $this->setExpectedException('AWeberAPIException', 'Simulated Exception');
         $entry->delete();
     }
 
@@ -124,8 +125,8 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
      *
      */
     public function testSet() {
-        $this->assertNotEqual($this->entry->name, 'mynewlistname');
-        $this->assertNotEqual($this->entry->data['name'], 'mynewlistname');
+        $this->assertNotEquals($this->entry->name, 'mynewlistname');
+        $this->assertNotEquals($this->entry->data['name'], 'mynewlistname');
         $this->entry->name = 'mynewlistname';
         $this->assertEquals($this->entry->name, 'mynewlistname');
         $this->assertEquals($this->entry->data['name'], 'mynewlistname');
@@ -143,7 +144,7 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
         $this->assertEquals($req['method'], 'PATCH');
         $this->assertEquals($req['uri'], $this->entry->url);
         $this->assertEquals($req['data'], array('name' => 'mynewlistname'));
-        $this->assertIdentical($resp, true);
+        $this->assertSame($resp, true);
     }
 
     public function testSaveFailed() {
@@ -151,7 +152,7 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
         $data = $this->adapter->request('GET', $url);
         $entry = new AWeberEntry($data, $url, $this->adapter);
         $entry->name = 'foobarbaz';
-        $this->expectException(AWeberAPIException, "SimulatedException");
+        $this->setExpectedException('AWeberAPIException', 'Simulated Exception');
         $resp = $entry->save();
     }
 
@@ -174,7 +175,7 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
 
 }
 
-class AccountTestCase extends PHPUnit_Framework_TestCase {
+abstract class AccountTestCase extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->adapter = get_mock_adapter();
@@ -224,7 +225,7 @@ class TestAccountGetWebForms extends AccountTestCase {
 
     public function testShouldHaveFullURL() {
         foreach($this->forms as $entry) {
-            $this->assertTrue(preg_match('/^\/accounts\/1\/lists\/[0-9]*\/web_forms\/[0-9]*$/', $entry->url));
+          $this->assertEquals(preg_match('/^\/accounts\/1\/lists\/[0-9]*\/web_forms\/[0-9]*$/', $entry->url), 1);
         }
     }
 }
@@ -252,7 +253,7 @@ class TestAccountGetWebFormSplitTests extends AccountTestCase {
 
     public function testShouldHaveFullURL() {
         foreach($this->forms as $entry) {
-            $this->assertTrue(preg_match('/^\/accounts\/1\/lists\/[0-9]*\/web_form_split_tests\/[0-9]*$/', $entry->url));
+          $this->assertEquals(preg_match('/^\/accounts\/1\/lists\/[0-9]*\/web_form_split_tests\/[0-9]*$/', $entry->url), 1);
         }
     }
 }
@@ -372,7 +373,7 @@ class TestAWeberMoveEntry extends PHPUnit_Framework_TestCase {
      public function testMove_Failure() {
 
          $this->adapter->clearRequests();
-         $this->expectException(AWeberAPIException, "SimulatedException");
+         $this->setExpectedException('AWeberAPIException', 'Simulated Exception');
          $this->unsubscribed->move($this->different_list);
          $this->assertEquals(sizeOf($this->adapter->requestsMade), 1);
 
