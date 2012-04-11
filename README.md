@@ -68,12 +68,30 @@ Running Tests:
 --------------
 Testing the PHP api library requires installation of a few utilities.
 
- * [Apache Ant](http://ant.apache.org/) - Used to run the build
-   targets in the build.xml file.
+ * [Apache Ant](http://ant.apache.org/)
+   - Used to run the build targets in the build.xml file.
+   - Get the latest version.
+ * Setup `/etc/php.ini` configuration file.
+   - Make sure `include_path` contains the correct directories.(`/usr/lib/php` on MacOS)
+   - Set `date.timezone` to your local timezone.
  * [PHP PEAR](http://pear.php.net/manual/en/installation.getting.php)
    - Used to install utilities for testing and code metrics.
- * [PHP QA Tools](http://pear.phpqatools.org/) - Collection of PHP
-   testing tools.
+   - Upgrade to the latest version using `sudo pear upgrade pear`.
+ * [PHP QA Tools](http://pear.phpqatools.org/)
+   - Collection of PHP testing tools.
+   - The following commands were needed to install:
+
+     sudo pear channel-discover pear.phpqatools.org
+
+     sudo pear install phpqatools/phpqatools
+
+   - If it fails due to missing channels, manually add the missing channels:
+
+     sudo pear channel-discover pear.phpunit.de
+     sudo pear channel-discover pear.pdepend.org
+     sudo pear channel-discover pear.phpmd.org
+     sudo pear channel-discover components.ez.no
+     sudo pear channel-discover pear.symfony-project.com
 
 Once the above requirements are installed, run the tests from the base
 directory using the command: `ant phpunit`.
