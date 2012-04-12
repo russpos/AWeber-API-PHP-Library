@@ -47,52 +47,54 @@ Refer to https://labs.aweber.com/docs/troubleshooting for the complete list
 
 Example Below:
 
-    <?php
+```php
+<?php
 
-    $consumerKey = '***';
-    $consumerSecret = '***';
-    $accessKey = '***';
-    $accessSecret = '***';
+$consumerKey = '***';
+$consumerSecret = '***';
+$accessKey = '***';
+$accessSecret = '***';
 
-    $aweber = new AWeberAPI($consumerKey, $consumerSecret);
-    $account = $aweber->getAccount($accessKey, $accessSecret);
+$aweber = new AWeberAPI($consumerKey, $consumerSecret);
+$account = $aweber->getAccount($accessKey, $accessSecret);
 
-    try {
-        $resource = $account->loadFromUrl('/accounts/idontexist');
-    } catch (AWeberAPIException $exc) {
-        print "<li> $exc->type on $exc->url, refer to $exc->message for more info ...<br>";
-    }
-    ?>
+try {
+    $resource = $account->loadFromUrl('/accounts/idontexist');
+} catch (AWeberAPIException $exc) {
+    print "<li> $exc->type on $exc->url, refer to $exc->message for more info ...<br>";
+}
+?>
+```
 
 Running Tests:
 --------------
 Testing the PHP api library requires installation of a few utilities.
 
- * [Apache Ant](http://ant.apache.org/)
-   - Used to run the build targets in the build.xml file.
-   - Get the latest version.
- * Setup `/etc/php.ini` configuration file.
-   - Make sure `include_path` contains the correct directories.(`/usr/lib/php` on MacOS)
-   - Set `date.timezone` to your local timezone.
- * [PHP PEAR](http://pear.php.net/manual/en/installation.getting.php)
-   - Used to install utilities for testing and code metrics.
-   - Upgrade to the latest version using `sudo pear upgrade pear`.
- * [PHP QA Tools](http://pear.phpqatools.org/)
-   - Collection of PHP testing tools.
-   - The following commands were needed to install:
+### Requirements ###
+[Apache Ant](http://ant.apache.org/) is used to run the build targets in the build.xml file. Get the latest version.
 
-     sudo pear channel-discover pear.phpqatools.org
+Setup `/etc/php.ini` configuration file. Make sure `include_path` contains the correct directories.(`/usr/lib/php` on MacOS) Set `date.timezone` to your local timezone.
 
-     sudo pear install phpqatools/phpqatools
+[PHP PEAR](http://pear.php.net/manual/en/installation.getting.php) is used to install utilities for testing and code metrics. Upgrade to the latest version using `sudo pear upgrade pear`.
 
-   - If it fails due to missing channels, manually add the missing channels:
+[PHP QA Tools](http://pear.phpqatools.org/) contain a collection of PHP testing tools. The following commands were needed to install:
 
-     sudo pear channel-discover pear.phpunit.de
-     sudo pear channel-discover pear.pdepend.org
-     sudo pear channel-discover pear.phpmd.org
-     sudo pear channel-discover components.ez.no
-     sudo pear channel-discover pear.symfony-project.com
+```bash
+sudo pear channel-discover pear.phpqatools.org
+sudo pear install phpqatools/phpqatools
+```
 
+If installing PHP QA Tools fails due to missing channels, manually add the missing channels:
+
+```bash
+sudo pear channel-discover pear.phpunit.de
+sudo pear channel-discover pear.pdepend.org
+sudo pear channel-discover pear.phpmd.org
+sudo pear channel-discover components.ez.no
+sudo pear channel-discover pear.symfony-project.com
+```
+
+### Execute Tests ###
 Once the above requirements are installed, run the tests from the base
 directory using the command: `ant phpunit`.
 
