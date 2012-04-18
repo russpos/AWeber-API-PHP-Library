@@ -176,7 +176,7 @@ class AWeberAPI extends AWeberAPIBase {
     }
 
     protected static function _parseAWeberID($string) {
-        $values = split('\|', $string);
+        $values = explode('|', $string);
         if (count($values) < 5) {
             return null;
         }

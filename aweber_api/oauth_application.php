@@ -378,10 +378,10 @@ class OAuthApplication implements AWeberOAuthAdapter {
         $method = $this->encode(strtoupper($method));
         $query = parse_url($url, PHP_URL_QUERY);
         if ($query) {
-            $url = array_shift(split('\?', $url, 2));
-            $items = split('&', $query);
+            $url = array_shift(explode('?', $url, 2));
+            $items = explode('&', $query);
             foreach ($items as $item) {
-                list($key, $value) = split('=', $item);
+                list($key, $value) = explode('=', $item);
                 $data[$key] = $value;
             }
         }

@@ -216,7 +216,7 @@ class AWeberEntry extends AWeberResponse {
      * Returns NULL if no parent entry
      */
     public function getParentEntry(){
-        $url_parts = split('/', $this->url);
+        $url_parts = explode('/', $this->url);
         $size = count($url_parts);
 
         #Remove entry id and slash from end of url

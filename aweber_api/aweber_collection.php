@@ -89,7 +89,7 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * Returns NULL if no parent entry
      */
     public function getParentEntry(){
-        $url_parts = split('/', $this->url);
+        $url_parts = explode('/', $this->url);
         $size = count($url_parts);
 
         #Remove collection id and slash from end of url
