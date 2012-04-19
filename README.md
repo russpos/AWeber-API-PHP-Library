@@ -5,6 +5,10 @@ PHP library for easily integrating with the AWeber API.
 
 Changelog:
 ----------
+2012-04-18: v1.1.3
+
+ * Removed usage of deprecated split function.
+
 2011-12-23: v1.1.2
 
  * Fixed a bug in the AWeberCollection class to properly set the URL of entries found in collections.
