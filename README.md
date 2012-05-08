@@ -51,16 +51,22 @@ try {
 ```
 
 
+Accessing personally identifiable subscriber data
+-------------------------------------------------
+In order to view or update the email, name, misc_notes, and ip_address fields of a subscriber, your app must
+specifically request access to subscriber data.   Refer to our documentation at
+https://labs.aweber.com/docs/permissions for more information on how to be able to access personally identifiable
+subscriber information.
+
+
 Changelog:
 ----------
 2012-05-08: v1.1.4
-```
    Some API Developers have reported AWeberOAuthDataMissing exceptions when using the demo.php script.
    This error message is not helpful as the typical cause for this exception is an invalid consumer key or secret.
 
    The client library has been refactored to always raise an AWeberAPIException when a 40x/50x http status code
    response is returned.  This exception will clearly indicate the cause of the error for easier troubleshooting.
-```
  * Refactored makeRequest to always raise an AWeberAPIException when a 40x or 50x status is returned.
  * Refactored makeRequest to indicate transient networking or firewall connectivity issues.
  * Refactored mock adaptor makeRequest for testing to behave the same way as the real makeRequest does.
