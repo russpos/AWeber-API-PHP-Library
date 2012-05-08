@@ -3,26 +3,6 @@ AWeber API PHP Library
 
 PHP library for easily integrating with the AWeber API.
 
-Changelog:
-----------
-2012-04-18: v1.1.3
-
- * Removed usage of deprecated split function.
-
-2011-12-23: v1.1.2
-
- * Fixed a bug in the AWeberCollection class to properly set the URL of entries found in collections.
-
-2011-10-10: v1.1.1
-
- * Raise an E_USER_WARNING instead of a fatal error if multiple instances of the client library are installed.
-
-2011-08-29: v1.1.0
-
- * Modified client library to raise an AWeberAPIException on any API errors (HTTP status >= 400)
- * Refactored tests for better code coverage
- * Refactored move and create methods to return the resource or raise an AWeberAPIException on error.
- * Added getActivity method to a subscriber entry.
 
 Basic Usage:
 ------------
@@ -36,15 +16,15 @@ Handling Errors:
 ----------------
 Sometimes errors happen and your application should handle them appropriately.
 Whenever an API error occurs an AWeberAPIException will be raised with a detailed
-error message and documentation link to explain what's wrong.
+error message and documentation link to explain what is wrong.
 
 You should wrap any calls to the API in a try/except block.
 
 Common Errors:
-
- * Resource not found (404 error)
- * Your application has been rate limited (403 error)
  * Bad request (400 error)
+ * Your application is not authorized (401 error)
+ * Your application has been rate limited (403 error)
+ * Resource not found (404 error)
  * API Temporarily unavailable (503 error)
 
 Refer to https://labs.aweber.com/docs/troubleshooting for the complete list
@@ -69,6 +49,42 @@ try {
 }
 ?>
 ```
+
+
+Changelog:
+----------
+2012-05-08: v1.1.4
+```
+   Some API Developers have reported AWeberOAuthDataMissing exceptions when using the demo.php script.
+   This error message is not helpful as the typical cause for this exception is an invalid consumer key or secret.
+
+   The client library has been refactored to always raise an AWeberAPIException when a 40x/50x http status code
+   response is returned.  This exception will clearly indicate the cause of the error for easier troubleshooting.
+```
+ * Refactored makeRequest to always raise an AWeberAPIException when a 40x or 50x status is returned.
+ * Refactored makeRequest to indicate transient networking or firewall connectivity issues.
+ * Refactored mock adaptor makeRequest for testing to behave the same way as the real makeRequest does.
+
+2012-04-18: v1.1.3
+
+ * Removed usage of deprecated split function.
+
+2011-12-23: v1.1.2
+
+ * Fixed a bug in the AWeberCollection class to properly set the URL of entries found in collections.
+
+2011-10-10: v1.1.1
+
+ * Raise an E_USER_WARNING instead of a fatal error if multiple instances of the client library are installed.
+
+2011-08-29: v1.1.0
+
+ * Modified client library to raise an AWeberAPIException on any API errors (HTTP status >= 400)
+ * Refactored tests for better code coverage
+ * Refactored move and create methods to return the resource or raise an AWeberAPIException on error.
+ * Added getActivity method to a subscriber entry.
+
+
 
 Running Tests:
 --------------

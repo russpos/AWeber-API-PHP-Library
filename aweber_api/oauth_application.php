@@ -118,15 +118,6 @@ class OAuthApplication implements AWeberOAuthAdapter {
 
         $response = $this->makeRequest($method, $url, $data);
 
-        if (!$response) {
-            throw new AWeberResponseError($uri);
-        }
-
-        if($response->headers['Status-Code'] >= 400) {
-            $data = json_decode($response->body, true);
-            throw new AWeberAPIException($data['error'], $url);
-        }
-
         if (!empty($options['return'])) {
             if ($options['return'] == 'status') {
                 return $response->headers['Status-Code'];
@@ -452,6 +443,8 @@ class OAuthApplication implements AWeberOAuthAdapter {
         } else {
             $resp = $this->get($url, $oauth, $data);
         }
+
+        // enable debug output
         if ($this->debug) {
             echo "<pre>";
             print_r($oauth);
@@ -459,6 +452,20 @@ class OAuthApplication implements AWeberOAuthAdapter {
             echo " --> Body: {$resp->body}";
             echo "</pre>";
         }
+
+        if (!$resp) {
+            $msg  = 'Unable to connect to the AWeber API.  Please ensure that CURL is enabled and your ';
+            $msg .= 'firewall allows outbound SSL requests from your web server.';
+            $error = array('message' => $msg, 'type' => 'APIUnreachableError',
+                           'documentation_url' => 'https://labs.aweber.com/docs/troubleshooting');
+            throw new AWeberAPIException($error, $url);
+        }
+
+        if($resp->headers['Status-Code'] >= 400) {
+            $data = json_decode($resp->body, true);
+            throw new AWeberAPIException($data['error'], $url);
+        }
+
         return $resp;
     }
 

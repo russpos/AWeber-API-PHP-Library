@@ -8,7 +8,6 @@ function get_mock_adapter() {
 }
 
 $map = array();
-
 $map['DELETE']['/accounts/1'                                                                                    ] = array(403, 'error');
 $map['DELETE']['/accounts/1/lists/303449'                                                                       ] = array(200, null);
 
@@ -79,6 +78,15 @@ class MockOAuthAdapter extends OAuthApplication {
 
         # load response from fixture and return data
         $mock_data = MockData::load($resource);
+
+        if (!$mock_data) {
+            $msg  = 'Unable to connect to the AWeber API.  Please ensure that CURL is enabled and your ';
+            $msg .= 'firewall allows outbound SSL requests from your web server.';
+            $error = array('message' => $msg, 'type' => 'APIUnreachableError',
+                           'documentation_url' => 'https://labs.aweber.com/docs/troubleshooting');
+            throw new AWeberAPIException($error, $url);
+        }
+
         $headers = array();
         $headers['Status-Code'] = $status;
 
@@ -87,6 +95,11 @@ class MockOAuthAdapter extends OAuthApplication {
         }
         $mock_data->headers = $headers;
 
+        if($headers['Status-Code'] >= 400) {
+            $data = json_decode($mock_data->body, true);
+            throw new AWeberAPIException($data['error'], $url);
+
+        }
         return $mock_data;
     }
 }
