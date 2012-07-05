@@ -61,6 +61,9 @@ subscriber information.
 
 Changelog:
 ----------
+2012-07-05: v1.1.5
+  * Fixed a bug were a utf8_encode notice was raised when updating subscriber custom field values.
+
 2012-05-08: v1.1.4
    Some API Developers have reported AWeberOAuthDataMissing exceptions when using the demo.php script.
    This error message is not helpful as the typical cause for this exception is an invalid consumer key or secret.

@@ -107,7 +107,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
         $uri = $this->app->removeBaseUri($uri);
         $url = $this->app->getBaseUri() . $uri;
 
-        # WARNING: non-primative items in data must be json serialized.
+        # WARNING: non-primative items in data must be json serialized in GET and POST.
         if ($method == 'POST' or $method == 'GET') {
             foreach ($data as $key => $value) {
                 if (is_array($value)) {
@@ -431,17 +431,29 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @return void
      */
     public function makeRequest($method, $url, $data=array()) {
-        $oauth = $this->prepareRequest($method, $url, $data);
+
         if ($this->debug) echo "\n** {$method}: $url\n";
-        if (strtoupper($method) == 'POST') {
-            $resp = $this->post($url, $oauth);
-        } else if (strtoupper($method) == 'DELETE') {
-            $resp = $this->delete($url, $oauth);
-        } else if (strtoupper($method) == 'PATCH') {
-            $oauth = $this->prepareRequest($method, $url, array());
-            $resp  = $this->patch($url, $oauth, $data);
-        } else {
-            $resp = $this->get($url, $oauth, $data);
+
+        switch (strtoupper($method)) {
+            case 'POST':
+                $oauth = $this->prepareRequest($method, $url, $data);
+                $resp = $this->post($url, $oauth);
+                break;
+
+            case 'GET':
+                $oauth = $this->prepareRequest($method, $url, $data);
+                $resp = $this->get($url, $oauth, $data);
+                break;
+
+            case 'DELETE':
+                $oauth = $this->prepareRequest($method, $url, $data);
+                $resp = $this->delete($url, $oauth);
+                break;
+
+            case 'PATCH':
+                $oauth = $this->prepareRequest($method, $url, array());
+                $resp  = $this->patch($url, $oauth, $data);
+                break;
         }
 
         // enable debug output
