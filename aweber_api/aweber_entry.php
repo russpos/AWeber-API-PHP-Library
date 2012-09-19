@@ -159,7 +159,7 @@ class AWeberEntry extends AWeberResponse {
      * @access public
      */
     public function __set($key, $value) {
-        if (isset($this->data[$key])) {
+        if (array_key_exists($key, $this->data)) {
             $this->_localDiff[$key] = $value;
             return $this->data[$key] = $value;
         } else {

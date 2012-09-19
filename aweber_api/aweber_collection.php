@@ -151,7 +151,7 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * @return integer
      */
     protected function _calculatePageSize() {
-        if (isset($this->data['next_collection_link'])) {
+        if (array_key_exists('next_collection_link', $this->data)) {
             $url = $this->data['next_collection_link'];
             $urlParts = parse_url($url);
             if (empty($urlParts['query'])) return $this->pageSize;
