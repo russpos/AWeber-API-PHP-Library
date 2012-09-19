@@ -61,6 +61,10 @@ subscriber information.
 
 Changelog:
 ----------
+2012-09-19: v1.1.6
+  * Fixed a bug that prevented resource attributes from being saved when the initial value of the resource attribute was null.
+    * used array_key_exists instead of isset for evaluation of associative arrays.  Requires PHP >= 4.0.7
+
 2012-07-05: v1.1.5
   * Fixed a bug were a utf8_encode notice was raised when updating subscriber custom field values.
 

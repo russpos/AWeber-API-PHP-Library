@@ -62,7 +62,7 @@ class AWeberResponse extends AWeberAPIBase {
         if (in_array($value, $this->_privateData)) {
             return null;
         }
-        if (isset($this->data[$value])) {
+        if (array_key_exists($value, $this->data)) {
             return $this->data[$value];
         }
         if ($value == 'type') return $this->_type();

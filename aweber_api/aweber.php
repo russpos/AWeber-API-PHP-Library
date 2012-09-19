@@ -122,7 +122,7 @@ class AWeberAPIBase {
         $this->adapter->parseAsError($response);
         if (!empty($response['id'])) {
             return new AWeberEntry($response, $url, $this->adapter);
-        } else if (isset($response['entries'])) {
+        } else if (array_key_exists('entries', $response)) {
             return new AWeberCollection($response, $url, $this->adapter);
         }
         return false;
