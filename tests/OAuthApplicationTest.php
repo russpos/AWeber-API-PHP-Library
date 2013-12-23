@@ -1,5 +1,6 @@
 <?php
 require_once('aweber_api/aweber_api.php');
+require_once('aweber_api/curl_object.php');
 require_once('mock_adapter.php');
 
 if (!class_exists('Object')) {
@@ -7,6 +8,9 @@ if (!class_exists('Object')) {
 }
 
 class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
+
+    public $stubrsp = 
+    	"HTTP/1.1 200 Ok\r\nDate: Fri, 20 Dec 2013 21:23:38 GMT\r\nContent-Type: application/json\r\n\r\n{data:fake}";	
 
     public function setUp() {
         $parentApp = false;
@@ -235,6 +239,20 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
         $this->assertTrue(strpos($baseString, $method) !== false);
         $this->assertTrue(strpos($baseString, urlencode($url))!== false);
     }
+	
+	/**
+	 * A plus sign in a query param is treated as a plug sign whereas a plus
+	 * sign in a POST body is treated as a space character.
+	 */
+	public function testCreateSignatureBaseEscapeParamWithPlus() {
+		list($mergeData, $requestData) = $this->generateRequestData();
+		$method = 'GET';
+		$url = 'http://www.somewhere.com/chicken?email=iluvchkn+10@somewhere.com';
+		$encodedPlus = '%252B';
+		
+		$baseString = $this->oauth->createSignatureBase($method, $url, $mergeData);
+		$this->assertTrue(strpos($baseString, $encodedPlus)!==FALSE);
+	}
 
     public function testSignRequest() {
         list($data, $requestData) = $this->generateRequestData();
@@ -302,4 +320,43 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
         $this->assertEquals($data,0);
     }
 
+	public function testMakeRequestGet() {
+		$stub = $this->getMock('CurlObject');
+		$stub->expects($this->any())
+		     ->method('execute')
+			 ->will($this->returnValue($this->stubrsp));		
+		$this->oauth->curl = $stub;
+		$rsp = $this->oauth->makeRequest("GET", 'http://www.example.com/fakeresource');
+		$this->assertEquals($rsp, "{data:fake}");	
+	}
+	
+	public function testMakeRequestPost() {
+		$stub = $this->getMock('CurlObject');
+		$stub->expects($this->any())
+		     ->method('execute')
+			 ->will($this->returnValue($this->stubrsp));		
+		$this->oauth->curl = $stub;
+		$rsp = $this->oauth->makeRequest("POST", 'http://www.example.com/fakeresource');
+		$this->assertEquals($rsp, "{data:fake}");	
+	}	
+
+	public function testMakeRequestPut() {
+		$stub = $this->getMock('CurlObject');
+		$stub->expects($this->any())
+		     ->method('execute')
+			 ->will($this->returnValue($this->stubrsp));		
+		$this->oauth->curl = $stub;
+		$rsp = $this->oauth->makeRequest("PATCH", 'http://www.example.com/fakeresource');
+		$this->assertEquals($rsp, "{data:fake}");	
+	}
+
+	public function testMakeRequestDelete() {
+		$stub = $this->getMock('CurlObject');
+		$stub->expects($this->any())
+		     ->method('execute')
+			 ->will($this->returnValue($this->stubrsp));		
+		$this->oauth->curl = $stub;
+		$rsp = $this->oauth->makeRequest("DELETE", 'http://www.example.com/fakeresource');
+		$this->assertEquals($rsp, "{data:fake}");	
+	}
 }
