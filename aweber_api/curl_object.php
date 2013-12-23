@@ -22,7 +22,7 @@ interface CurlInterface {
      * @access public 
      * @return the error number or 0 if no error occured.
      */
-	public function errno($ch);	
+    public function errno($ch);	
 	
     /**
      * error
@@ -32,7 +32,7 @@ interface CurlInterface {
      * @access public 
      * @return the error messge or '' if no error occured.
      */	
-	public function error($ch);
+    public function error($ch);
 
     /**
      * execute
@@ -42,7 +42,7 @@ interface CurlInterface {
      * @access public 
      * @return TRUE on success, FALSE on failure.
      */	
-	public function execute($ch);
+    public function execute($ch);
 
     /**
      * init
@@ -52,19 +52,19 @@ interface CurlInterface {
      * @access public 
      * @return cURL handle on success, FALSE on failure.
      */	
-	public function init($url);
+    public function init($url);
 	
     /**
      * setopt
      *
      * Encapsulates curl_setopt - Set an option for cURL transfer.
      * @param resource $ch - A cURL handle returned by init.
-	 * @param int $opt - The CURLOPT to set.
-	 * @param mixed $value - The value to set.
+     * @param int $opt - The CURLOPT to set.
+     * @param mixed $value - The value to set.
      * @access public 
      * @return True on success, FALSE on failure.
      */		
-	public function setopt ($ch , $option , $value);
+    public function setopt ($ch , $option , $value);
 }
 
 
@@ -79,26 +79,26 @@ interface CurlInterface {
  */
 class CurlObject implements CurlInterface {
 	
-	public function errno($ch) {
-		return curl_errno($ch);
-	}	
+    public function errno($ch) {
+        return curl_errno($ch);
+    }	
+
+    public function error($ch) {
+        return curl_error($ch);
+    }	
 	
-	public function error($ch) {
-		return curl_error($ch);
-	}	
-	
-	public function execute($ch) {
-		return curl_exec($ch);
-	}
-	
-	public function init($url) {
-		return curl_init($url);
-	}
-		
-	public function setopt ($ch , $option , $value) {
-		return curl_setopt($ch, $option, $value);
-	}
-	
+    public function execute($ch) {
+        return curl_exec($ch);
+    }
+
+    public function init($url) {
+        return curl_init($url); 
+    }
+    
+    public function setopt ($ch , $option , $value) {
+        return curl_setopt($ch, $option, $value);
+    }
+
 }
 
 

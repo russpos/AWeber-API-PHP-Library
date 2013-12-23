@@ -66,7 +66,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
     public $signatureMethod = 'HMAC-SHA1';
     public $version         = '1.0';
 
-	public $curl = false;
+    public $curl = false;
 
     /**
      * @var OAuthUser User currently interacting with the service provider
@@ -93,7 +93,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
             $this->app = $parentApp;
         }
         $this->user = new OAuthUser();
-		$this->curl = new CurlObject();
+        $this->curl = new CurlObject();
     }
 
     /**
