@@ -1,9 +1,9 @@
 <?php
 
 /**
- * CurlFactory
+ * CurlInterface
  *
- * A razor thin OOB interface mirroring the standard PHP cURL library.
+ * An object-oriented shim that wraps the standard PHP cURL library.
  * 
  * This interface has been created so that cURL functionality can be stubbed
  * out for unit testing, or swapped for an alternative library.
@@ -71,8 +71,7 @@ interface CurlInterface {
 /**
  * CurlObject
  *
- * A concrete implementation of the CurlAbstraction interface using
- * the PHP cURL library.
+ * A concrete implementation of CurlInterface using the PHP cURL library.
  *
  * @package
  * @version $id$
@@ -100,6 +99,5 @@ class CurlObject implements CurlInterface {
     }
 
 }
-
 
 ?>

@@ -255,13 +255,19 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
     }
 	
     /**
-     * A plus sign in a query param is treated as a plug sign whereas a plus
-     * sign in a POST body is treated as a space character.
+     * testCreateSignatureBaseEscapeParamWithPlus
+     * 
+     * Test that reserved characters escaped in the URL query params are preserved
+     * correctly in the signature base. In this case, a %2B (plus) should be
+     * converted into a %252B in the signature base.
+     *
+     * @access public
+     * @return void
      */
     public function testCreateSignatureBaseEscapeParamWithPlus() {
         list($mergeData, $requestData) = $this->generateRequestData();
         $method = 'GET';
-        $url = 'http://www.somewhere.com/chicken?email=iluvchkn+10@somewhere.com';
+        $url = 'http://www.somewhere.com/chicken?email=iluvchkn%2B10@somewhere.com';
         $encodedPlus = '%252B';
 
         $baseString = $this->oauth->createSignatureBase($method, $url, $mergeData);
@@ -413,10 +419,10 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
      *
      * Test request behavior as it relates to separaters in URL.
      * 
-     * This test verifies that a non-sepator equals sign in the URL 
+     * This test verifies that a non-seperator equals sign in the URL 
      * query params is handled correctly when generating the oauth
-     * signature base. For this specific test, an escaped plus
-     * sign needs to show up as %253D in the signature, not as
+     * signature base. For this specific test, an escaped equals
+     * character needs to show up as %253D in the signature, not as
      * %25253D
      * 
      * @access public
