@@ -378,7 +378,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
             $items = explode('&', $query);
             foreach ($items as $item) {
                 list($key, $value) = explode('=', $item);
-                $data[$key] = $value;
+                $data[rawurldecode($key)] = rawurldecode($value);
             }
         }
         $url = $this->encode($url);
@@ -429,16 +429,17 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * makeRequest
      *
      * Public facing function to make a request
+     * 
      * @param mixed $method
-     * @param mixed $url
-     * @param mixed $data
+     * @param mixed $url  - Reserved characters in query params MUST be escaped
+     * @param mixed $data - Reserved characters in values MUST NOT be escaped
      * @access public
      * @return void
      */
     public function makeRequest($method, $url, $data=array()) {
 
         if ($this->debug) echo "\n** {$method}: $url\n";
-
+        
         switch (strtoupper($method)) {
             case 'POST':
                 $oauth = $this->prepareRequest($method, $url, $data);

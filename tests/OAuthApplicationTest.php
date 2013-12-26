@@ -7,7 +7,21 @@ if (!class_exists('Object')) {
     class Object {}
 }
 
-class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
+class PatchedOAuthApplication extends OAuthApplication {
+    
+    public $signatureBase = false;    
+    
+    public function createSignature($sigBase, $sigKey) {
+        $this->signatureBase = $sigBase;
+        switch ($this->signatureMethod) {
+        case 'HMAC-SHA1':
+        default:
+            return base64_encode(hash_hmac('sha1', $sigBase, $sigKey, true));
+        }        
+    }    
+}
+
+class TestOAuthApplication extends PHPUnit_Framework_TestCase {
 
     public $stubrsp = 
         "HTTP/1.1 200 Ok\r\nDate: Fri, 20 Dec 2013 21:23:38 GMT\r\nContent-Type: application/json\r\n\r\n{data:fake}";	
@@ -326,7 +340,8 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));		
         $this->oauth->curl = $stub;
-        $rsp = $this->oauth->makeRequest("GET", 'http://www.example.com/fakeresource');
+        $rsp = $this->oauth->makeRequest("GET",
+             'http://www.example.com/fakeresource');
         $this->assertEquals($rsp, "{data:fake}");	
     }
 
@@ -336,7 +351,8 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));		
         $this->oauth->curl = $stub;
-        $rsp = $this->oauth->makeRequest("POST", 'http://www.example.com/fakeresource');
+        $rsp = $this->oauth->makeRequest("POST", 
+            'http://www.example.com/fakeresource');
         $this->assertEquals($rsp, "{data:fake}");	
     }	
 
@@ -346,7 +362,8 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));		
         $this->oauth->curl = $stub;
-        $rsp = $this->oauth->makeRequest("PATCH", 'http://www.example.com/fakeresource');
+        $rsp = $this->oauth->makeRequest("PATCH", 
+            'http://www.example.com/fakeresource');
         $this->assertEquals($rsp, "{data:fake}");	
     }
 
@@ -356,7 +373,126 @@ class TestOAuthAppliation extends PHPUnit_Framework_TestCase {
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));		
         $this->oauth->curl = $stub;
-        $rsp = $this->oauth->makeRequest("DELETE", 'http://www.example.com/fakeresource');
+        $rsp = $this->oauth->makeRequest("DELETE", 
+            'http://www.example.com/fakeresource');
         $this->assertEquals($rsp, "{data:fake}");	
     }
+    
+    /**
+     * testMakeRequestContainsReservedCharInUrl
+     *
+     * Test request behavior as it relates to reserved chars in URL.
+     * 
+     * This test verifies that escaped characters in the URL query
+     * params are handled correctly when generating the oauth
+     * signature base. For this specific test, an escaped plus
+     * sign needs to show up as %252B in the signature, not as
+     * %25252B
+     * 
+     * @access public
+     * @return void
+     */
+    public function testMakeRequestContainsReservedCharInUrl() {
+        $parentApp = false;
+        $patchedoauth = new PatchedOAuthApplication($parentApp);
+        $patchedoauth->consumerSecret = 'CONSUMERSECRET';
+        $patchedoauth->consumerKey = 'consumer_key';
+       
+        $stub = $this->getMock('CurlObject');
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue($this->stubrsp));                    
+        $patchedoauth->curl = $stub;
+        $rsp = $patchedoauth->makeRequest("GET", 
+            'http://www.example.com/fake?email=noone%2B@sp.com');
+        $this->assertRegExp('/.+(\%252B).+/', $patchedoauth->signatureBase);
+    }
+
+    /**
+     * testMakeRequestContainsSeperatorInUrl
+     *
+     * Test request behavior as it relates to separaters in URL.
+     * 
+     * This test verifies that a non-sepator equals sign in the URL 
+     * query params is handled correctly when generating the oauth
+     * signature base. For this specific test, an escaped plus
+     * sign needs to show up as %253D in the signature, not as
+     * %25253D
+     * 
+     * @access public
+     * @return void
+     */    
+    public function testMakeRequestContainsSeparatorInUrl() {
+        $parentApp = false;
+        $patchedoauth = new PatchedOAuthApplication($parentApp);
+        $patchedoauth->consumerSecret = 'CONSUMERSECRET';
+        $patchedoauth->consumerKey = 'consumer_key';
+       
+        $stub = $this->getMock('CurlObject');
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue($this->stubrsp));                    
+        $patchedoauth->curl = $stub;
+        $rsp = $patchedoauth->makeRequest("GET", 
+            'http://www.example.com/fake?email=noone%3D@sp.com');
+        $this->assertRegExp('/.+(\%253D).+/', $patchedoauth->signatureBase);
+    }    
+
+    /**
+     * testMakeRequestContainsReservedCharInData
+     *
+     * Test request behavior as it relates to reserved chars in data.
+     * 
+     * This test verifies that reserved characters in the data array 
+     * are handled correctly when generating the oauth signature base.
+     * For this specific test, a plus sign needs to show up as %252B 
+     * in the signature, not as + or %25252B
+     * 
+     * @access public
+     * @return void
+     */    
+    public function testMakeRequestContainsReservedCharInData() {
+        $parentApp = false;
+        $patchedoauth = new PatchedOAuthApplication($parentApp);
+        $patchedoauth->consumerSecret = 'CONSUMERSECRET';
+        $patchedoauth->consumerKey = 'consumer_key';
+       
+        $stub = $this->getMock('CurlObject');
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue($this->stubrsp));                    
+        $patchedoauth->curl = $stub;
+        $rsp = $patchedoauth->makeRequest("GET", 'http://www.example.com/fake',
+            array('email' => 'noone+1@sp.com'));
+        $this->assertRegExp('/.+(\%252B).+/', $patchedoauth->signatureBase);
+    }
+    
+    /**
+     * testMakeRequestContainsSeperatorInData
+     *
+     * Test request behavior as it relates to separators in data array.
+     * 
+     * This test verifies that a non-separator equals sign in the data
+     * array is handled correctly when generating the oauth signature base. 
+     * For this specific test, an equals sign needs to show up as %253D 
+     * in the signature, not as %25253D
+     * 
+     * @access public
+     * @return void
+     */    
+    public function testMakeRequestContainsSeparatorInData() {
+        $parentApp = false;
+        $patchedoauth = new PatchedOAuthApplication($parentApp);
+        $patchedoauth->consumerSecret = 'CONSUMERSECRET';
+        $patchedoauth->consumerKey = 'consumer_key';
+       
+        $stub = $this->getMock('CurlObject');
+        $stub->expects($this->any())
+             ->method('execute')
+             ->will($this->returnValue($this->stubrsp));                    
+        $patchedoauth->curl = $stub;
+        $rsp = $patchedoauth->makeRequest("GET", 'http://www.example.com/fake',
+            array('email' => 'noone=1@sp.com'));
+        $this->assertRegExp('/.+(\%253D).+/', $patchedoauth->signatureBase);
+    }    
 }
