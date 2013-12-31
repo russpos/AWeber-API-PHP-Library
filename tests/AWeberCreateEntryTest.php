@@ -148,7 +148,7 @@ EOT;
         
         // Create the new custom field
         try {
-            $rsp = $custom_fields->create(array('name' => 'Field With Spaces'));
+            $rsp = $custom_fields->create(array('name' => 'Field+With+Plus+Chars'));
         }
         
         // Finally the actual unit test. Verify that the create fails.
