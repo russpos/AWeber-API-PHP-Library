@@ -310,7 +310,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @return void         Encoded data
      */
     protected function encode($data) {
-        return rawurlencode(utf8_encode($data));
+        return rawurlencode($data);
     }
 
     /**
@@ -384,6 +384,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
         }
         $url = $this->encode($url);
         $data = $this->encode($this->collapseDataForSignature($data));
+
         return $method.'&'.$url.'&'.$data;
     }
 
