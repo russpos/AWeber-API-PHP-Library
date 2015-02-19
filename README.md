@@ -64,6 +64,9 @@ Changelog:
 2015-02-17: v1.1.13
   * Remove double encoding in requests to support utf-8
 
+2014-02-05: v1.1.12
+  * Add composer file.
+
 2013-04-25: v1.1.11
   * Fixed a bug in the Collection Find Subscriber method where fetching the next page in the collection had not
     included the previous search parameters.
