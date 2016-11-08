@@ -83,5 +83,18 @@ class TestAWeberAPI extends PHPUnit_Framework_TestCase {
         $this->assertEquals($list->id, '303449');
     }
 
+    /**
+     * Load from URL should take a relative URL and return the correct
+     * object based on that request. Allows skipping around the tree
+     * based on URLs, not just walking it.
+     */
+    public function test_loadFromUrl_broadcast() {
+        $this->aweber->setAdapter($this->adapter);
+        $list = $this->aweber->loadFromUrl('/accounts/1/lists/303449/broadcasts/1337');
+
+        $this->assertTrue(is_a($list, 'AWeberEntry'));
+        $this->assertEquals($list->type, 'broadcast');
+        $this->assertEquals($list->broadcast_id, '1337');
+    }
 }
 ?>
