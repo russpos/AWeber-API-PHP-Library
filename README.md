@@ -61,6 +61,9 @@ subscriber information.
 
 Changelog:
 ----------
+2016-11-09: v1.1.15
+  * Create AWeberEntry for Broadcast Entry endpoint
+
 2015-02-17: v1.1.13
   * Remove double encoding in requests to support utf-8
 
