@@ -36,6 +36,7 @@ $map['GET'   ]['/accounts/1?email=joe%40example.com&ws.op=findSubscribers'      
 $map['GET'   ]['/accounts/1?ws.op=getWebFormSplitTests'                                                         ] = array(200, 'accounts/webFormSplitTests');
 $map['GET'   ]['/accounts/1?ws.op=getWebForms'                                                                  ] = array(200, 'accounts/webForms');
 $map['GET'   ]['/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.show=total_size'            ] = array(200, 'empty');
+$map['GET'   ]['/accounts/1/lists/303449/broadcasts/1337'                                                       ] = array(200, 'broadcasts/1337');
 
 # collection pagination tests
 $map['GET'   ]['/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=0&ws.op=find'                   ] = array(200, 'subscribers/find_1of2');
