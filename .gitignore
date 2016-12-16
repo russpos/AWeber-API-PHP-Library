@@ -8,6 +8,8 @@ ehthumbs.db
 *.swo
 *.swp
 *~
+/vendor
+/.idea
 cache.properties
 build
 !build/phpcs.xml
