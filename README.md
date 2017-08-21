@@ -61,6 +61,9 @@ subscriber information.
 
 Changelog:
 ----------
+2016-11-09: v1.1.16
+  * Fixing UTF-8 issues on creates
+
 2016-11-09: v1.1.15
   * Create AWeberEntry for Broadcast Entry endpoint
 
