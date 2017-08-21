@@ -42,10 +42,12 @@ class TestAWeberCreateEntry extends PHPUnit_Framework_TestCase {
          $this->assertEquals($req['data'], array(
              'ws.op' => 'create',
              'name' => 'AwesomeField'));
+         $this->assertEquals(array('Content-Type: application/json'), $req['headers'], "Create request should have a Content-Type header");
 
          $req = $this->adapter->requestsMade[1];
          $this->assertEquals($req['method'], 'GET');
          $this->assertEquals($req['uri'], '/accounts/1/lists/303449/custom_fields/2');
+         $this->assertEmpty($req['headers'], "Get Custom fields request shouldn't have a Content-Type header");
      }
     
     /**
