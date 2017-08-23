@@ -61,8 +61,11 @@ subscriber information.
 
 Changelog:
 ----------
-2016-11-09: v1.1.16
+2017-08-21: v1.1.17
   * Fixing UTF-8 issues on creates
+  
+2016-12-16: v1.1.16
+  * Composer autoload with classmap  
 
 2016-11-09: v1.1.15
   * Create AWeberEntry for Broadcast Entry endpoint
