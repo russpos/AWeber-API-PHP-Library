@@ -104,6 +104,7 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
         $this->assertEquals(sizeOf($this->adapter->requestsMade), 1);
         $this->assertEquals($this->adapter->requestsMade[0]['method'], 'DELETE');
         $this->assertEquals($this->adapter->requestsMade[0]['uri'], $this->entry->url);
+        $this->assertEmpty($this->adapter->requestsMade[0]['headers'], "Delete request shouldn't have a Content-Type header");
     }
 
     /**
@@ -144,6 +145,7 @@ class TestAWeberEntry extends PHPUnit_Framework_TestCase {
         $this->assertEquals($req['method'], 'PATCH');
         $this->assertEquals($req['uri'], $this->entry->url);
         $this->assertEquals($req['data'], array('name' => 'mynewlistname'));
+        $this->assertEquals(array('Content-Type: application/json'), $req['headers'], "Save request should have a Content-Type header");
         $this->assertSame($resp, true);
     }
 
@@ -361,6 +363,7 @@ class TestAWeberMoveEntry extends PHPUnit_Framework_TestCase {
          $this->assertEquals($req['data'], array(
              'ws.op' => 'move',
              'list_link' => $this->different_list->self_link));
+        $this->assertEmpty($req['headers'], "Move request shouldn't have a Content-Type header");
 
          $req = $this->adapter->requestsMade[1];
          $this->assertEquals($req['method'], 'GET');
@@ -404,6 +407,7 @@ class TestAWeberMoveEntry extends PHPUnit_Framework_TestCase {
              'ws.op' => 'move',
              'list_link' => $this->different_list->self_link,
              'last_followup_message_number_sent' => $this->last_followup_message_number_sent));
+         $this->assertEmpty($req['headers'], "Move request shouldn't have a Content-Type header");
 
          $req = $this->adapter->requestsMade[1];
          $this->assertEquals($req['method'], 'GET');

@@ -46,9 +46,9 @@ class AWeberEntry extends AWeberResponse {
     }
 
     /**
-     * _type 
+     * _type
      *
-     * Used to pull the name of this resource from its resource_type_link 
+     * Used to pull the name of this resource from its resource_type_link
      * @access protected
      * @return String
      */
@@ -123,7 +123,7 @@ class AWeberEntry extends AWeberResponse {
      */
     public function save() {
         if (!empty($this->_localDiff)) {
-            $data = $this->adapter->request('PATCH', $this->url, $this->_localDiff, array('return' => 'status'));
+            $data = $this->adapter->request('PATCH', $this->url, $this->_localDiff, array('return' => 'status'), array('Content-Type: application/json'));
         }
         $this->_localDiff = array();
         return true;
@@ -133,10 +133,10 @@ class AWeberEntry extends AWeberResponse {
     /**
      * __get
      *
-     * Used to look up items in data, and special properties like type and 
+     * Used to look up items in data, and special properties like type and
      * child collections dynamically.
      *
-     * @param String $value     Attribute being accessed  
+     * @param String $value     Attribute being accessed
      * @access public
      * @throws AWeberResourceNotImplemented
      * @return mixed
@@ -276,11 +276,11 @@ class AWeberEntry extends AWeberResponse {
     /**
      * _parseNamedOperation
      *
-     * Turns a dumb array of json into an array of Entries.  This is NOT 
+     * Turns a dumb array of json into an array of Entries.  This is NOT
      * a collection, but simply an array of entries, as returned from a
      * named operation.
      *
-     * @param array $data 
+     * @param array $data
      * @access protected
      * @return array
      */
@@ -288,7 +288,7 @@ class AWeberEntry extends AWeberResponse {
         $results = array();
         foreach($data as $entryData) {
             $results[] = new AWeberEntry($entryData, str_replace($this->adapter->app->getBaseUri(), '',
-               $entryData['self_link']), $this->adapter); 
+               $entryData['self_link']), $this->adapter);
         }
         return $results;
     }
@@ -308,7 +308,7 @@ class AWeberEntry extends AWeberResponse {
     }
 
     /**
-     * _getCollection 
+     * _getCollection
      *
      * Returns the AWeberCollection object representing the given
      * collection name, relative to this entry.

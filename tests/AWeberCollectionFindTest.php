@@ -32,10 +32,12 @@ class TestAWeberCollectionFind extends PHPUnit_Framework_TestCase {
         $req = $this->adapter->requestsMade[0];
         $this->assertEquals($req['method'], 'GET');
         $this->assertEquals($req['uri'], $expected_url);
+        $this->assertEmpty($req['headers'], "Find request shouldn't have a Content-Type header");
 
         $req = $this->adapter->requestsMade[1];
         $this->assertEquals($req['method'], 'GET');
         $this->assertEquals($req['uri'], $expected_url . "&ws.show=total_size");
+        $this->assertEmpty($req['headers'], "Find request shouldn't have a Content-Type header");
 
         # Asserts on the returned data
         $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));
@@ -57,10 +59,12 @@ class TestAWeberCollectionFind extends PHPUnit_Framework_TestCase {
         $req = $this->adapter->requestsMade[0];
         $this->assertEquals($req['method'], 'GET');
         $this->assertEquals($req['uri'], $expected_url);
+        $this->assertEmpty($req['headers'], "Find request shouldn't have a Content-Type header");
 
         $req = $this->adapter->requestsMade[1];
         $this->assertEquals($req['method'], 'GET');
         $this->assertEquals($req['uri'], $expected_url . "&ws.show=total_size");
+        $this->assertEmpty($req['headers'], "Find request shouldn't have a Content-Type header");
 
         # Asserts on the returned data
         $this->assertTrue(is_a($found_subscribers, 'AWeberCollection'));

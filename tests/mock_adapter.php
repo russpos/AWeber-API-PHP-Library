@@ -56,18 +56,19 @@ class MockOAuthAdapter extends OAuthApplication {
 
     public $requestsMade = array();
 
-    public function addRequest($method, $uri, $data) {
+    public function addRequest($method, $uri, $data, $headers) {
         $this->requestsMade[] = array(
             'method' => $method,
             'uri'    => $uri,
-            'data'   => $data);
+            'data'   => $data,
+            'headers' => $headers);
     }
 
     public function clearRequests() {
         $this->requestsMade = array();
     }
 
-    public function makeRequest($method, $url, $data=array()) {
+    public function makeRequest($method, $url, $data=array(), $headers=array()) {
         global $map;
 
         # append params to url (for fixtures)
@@ -82,7 +83,7 @@ class MockOAuthAdapter extends OAuthApplication {
         $resource = $map[$method][$uri][1];
 
         # record the request
-        $this->addRequest($method, $uri, $data);
+        $this->addRequest($method, $uri, $data, $headers);
 
         # load response from fixture and return data
         $mock_data = MockData::load($resource);

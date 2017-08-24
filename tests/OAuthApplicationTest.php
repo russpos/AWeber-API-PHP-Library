@@ -139,7 +139,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testGetVersion() {
-        $version = $this->oauth->version;
+        $version = $this->oauth->oAuthVersion;
         $this->assertEquals($version, '1.0', 'Default version is 1.0');
     }
 
