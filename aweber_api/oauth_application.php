@@ -57,14 +57,17 @@ interface OAuthServiceProvider {
 class OAuthApplication implements AWeberOAuthAdapter {
     public $debug = false;
 
-    public $userAgent = 'AWeber OAuth Consumer Application 1.0 - https://labs.aweber.com/';
+    public $userAgentTitle = "AWeber-PHP-CL/";
 
     public $format = false;
 
     public $requiresTokenSecret = true;
 
     public $signatureMethod = 'HMAC-SHA1';
-    public $version         = '1.0';
+
+    public $clientVersion = '1.1.17';
+
+    public $oAuthVersion = '1.0';
 
     public $curl = false;
 
@@ -344,7 +347,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
         return array(
             'oauth_token' => $token,
             'oauth_consumer_key' => $this->consumerKey,
-            'oauth_version' => $this->version,
+            'oauth_version' => $this->oAuthVersion,
             'oauth_timestamp' => $ts,
             'oauth_signature_method' => $this->signatureMethod,
             'oauth_nonce' => $nonce);
@@ -580,7 +583,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
         $this->curl->setopt($handle, CURLOPT_RETURNTRANSFER, true);
         $this->curl->setopt($handle, CURLOPT_HEADER, true);
         $this->curl->setopt($handle, CURLOPT_HTTPHEADER, $headers);
-        $this->curl->setopt($handle, CURLOPT_USERAGENT, $this->userAgent);
+        $this->curl->setopt($handle, CURLOPT_USERAGENT, $this->userAgent());
         $this->curl->setopt($handle, CURLOPT_SSL_VERIFYPEER, FALSE);
         $this->curl->setopt($handle, CURLOPT_VERBOSE, FALSE);
         $this->curl->setopt($handle, CURLOPT_CONNECTTIMEOUT, 10);
@@ -633,6 +636,17 @@ class OAuthApplication implements AWeberOAuthAdapter {
         }
         $this->parseAsError($data);
         return $data;
+    }
+
+    /**
+     * userAgent
+     *
+     * Generates the user agent for the cURL command
+     *
+     * @return string
+     */
+    protected function userAgent() {
+        return $this->userAgentTitle . $this->clientVersion . ' PHP/' . PHP_VERSION . ' ' . php_uname('m') . '-' . strtolower(php_uname('s')) . '-'.  php_uname('r');
     }
 
 }
