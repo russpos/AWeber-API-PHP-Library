@@ -104,8 +104,10 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @param mixed $uri
      * @param array $data
      * @param array $options
+     * @param array $headers
      * @access public
      * @return void
+     * @throws AWeberResponseError
      */
     public function request($method, $uri, $data = array(), $options = array(), $headers = array()) {
         $uri = $this->app->removeBaseUri($uri);
