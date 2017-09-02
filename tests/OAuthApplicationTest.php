@@ -341,7 +341,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
     }
 
     public function testMakeRequestGet() {
-        $stub = $this->getMock('CurlObject');
+        $stub = $this->createMock('CurlObject');
         $stub->expects($this->any())
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));		
@@ -352,7 +352,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
     }
 
     public function testMakeRequestPost() {
-        $stub = $this->getMock('CurlObject');
+        $stub = $this->createMock('CurlObject');
         $stub->expects($this->any())
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));		
@@ -363,7 +363,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
     }	
 
     public function testMakeRequestPut() {
-        $stub = $this->getMock('CurlObject');
+        $stub = $this->createMock('CurlObject');
         $stub->expects($this->any())
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));		
@@ -374,7 +374,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
     }
 
     public function testMakeRequestDelete() {
-        $stub = $this->getMock('CurlObject');
+        $stub = $this->createMock('CurlObject');
         $stub->expects($this->any())
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));		
@@ -404,7 +404,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
         $patchedoauth->consumerSecret = 'CONSUMERSECRET';
         $patchedoauth->consumerKey = 'consumer_key';
        
-        $stub = $this->getMock('CurlObject');
+        $stub = $this->createMock('CurlObject');
         $stub->expects($this->any())
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));                    
@@ -434,7 +434,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
         $patchedoauth->consumerSecret = 'CONSUMERSECRET';
         $patchedoauth->consumerKey = 'consumer_key';
        
-        $stub = $this->getMock('CurlObject');
+        $stub = $this->createMock('CurlObject');
         $stub->expects($this->any())
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));                    
@@ -463,7 +463,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
         $patchedoauth->consumerSecret = 'CONSUMERSECRET';
         $patchedoauth->consumerKey = 'consumer_key';
        
-        $stub = $this->getMock('CurlObject');
+        $stub = $this->createMock('CurlObject');
         $stub->expects($this->any())
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));                    
@@ -492,7 +492,7 @@ class TestOAuthApplication extends PHPUnit_Framework_TestCase {
         $patchedoauth->consumerSecret = 'CONSUMERSECRET';
         $patchedoauth->consumerKey = 'consumer_key';
        
-        $stub = $this->getMock('CurlObject');
+        $stub = $this->createMock('CurlObject');
         $stub->expects($this->any())
              ->method('execute')
              ->will($this->returnValue($this->stubrsp));                    

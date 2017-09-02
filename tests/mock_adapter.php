@@ -51,6 +51,12 @@ $map['POST'  ]['/accounts/1/lists/303449/custom_fields'                         
 $map['POST'  ]['/accounts/1/lists/303449/subscribers/1'                                                         ] = array(201, '/accounts/1/lists/505454/subscribers/3');
 $map['POST'  ]['/accounts/1/lists/303449/subscribers/2'                                                         ] = array(400, 'error');
 
+# Entity Body formatting
+$map['POST'  ]['/accounts/1/lists/303449/subscribers'                                                           ] = array(201, '/accounts/1/lists/505454/subscribers/3');
+$map['GET'   ]['/accounts/1?email=joe%40example.com&custom_fields=%7B%22test%22%3A%22test%22%7D&ws.op=findSubscribers&ws.show=total_size'                   ] = array(200, 'accounts/findSubscribers_ts');
+$map['GET'   ]['/accounts/1?email=joe%40example.com&custom_fields=%7B%22test%22%3A%22test%22%7D&ws.op=findSubscribers'                                      ] = array(200, 'accounts/findSubscribers');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?custom_fields=%7B%22test%22%3A%22test%22%7D&ws.op=find'                ] = array(200, 'subscribers/find_1of2');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?custom_fields=%7B%22test%22%3A%22test%22%7D&ws.op=find&ws.show=total_size'                ] = array(200, 'subscribers/find_1of2_tsl');
 
 class MockOAuthAdapter extends OAuthApplication {
 

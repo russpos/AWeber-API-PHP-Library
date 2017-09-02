@@ -65,7 +65,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
 
     public $signatureMethod = 'HMAC-SHA1';
 
-    public $clientVersion = '1.1.17';
+    public $clientVersion = '1.1.18';
 
     public $oAuthVersion = '1.0';
 
@@ -86,7 +86,8 @@ class OAuthApplication implements AWeberOAuthAdapter {
      *
      * Create a new OAuthApplication, based on an OAuthServiceProvider
      * @access public
-     * @return void
+     * @param bool $parentApp
+     * @throws Exception
      */
     public function __construct($parentApp = false) {
         if ($parentApp) {
@@ -116,8 +117,8 @@ class OAuthApplication implements AWeberOAuthAdapter {
         $uri = $this->app->removeBaseUri($uri);
         $url = $this->app->getBaseUri() . $uri;
 
-        # WARNING: non-primative items in data must be json serialized in GET and POST.
-        if ($method == 'POST' or $method == 'GET') {
+        # WARNING: If not being sent as json, non-primative items in data must be json serialized in GET and POST.
+        if ( (!in_array("Content-Type: application/json", $headers) and $method == 'POST') or $method == 'GET' ) {
             foreach ($data as $key => $value) {
                 if (is_array($value)) {
                     $data[$key] = json_encode($value);
@@ -171,6 +172,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
      *
      * @access public
      * @return void
+     * @throws AWeberOAuthDataMissing
      */
     public function getAccessToken() {
         $resp = $this->makeRequest('POST', $this->app->getAccessTokenUrl(),
@@ -212,10 +214,11 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * Enforce that all the fields in requiredFields are present and not
      * empty in data.  If a required field is empty, throw an exception.
      *
-     * @param mixed $data               Array of data
-     * @param mixed $requiredFields     Array of required field names.
-     * @access protected
+     * @param mixed $data Array of data
+     * @param mixed $requiredFields Array of required field names.
      * @return void
+     * @throws AWeberOAuthDataMissing
+     * @access protected
      */
     protected function requiredFromResponse($data, $requiredFields) {
         foreach ($requiredFields as $field) {
@@ -441,8 +444,11 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @param mixed $method
      * @param mixed $url  - Reserved characters in query params MUST be escaped
      * @param mixed $data - Reserved characters in values MUST NOT be escaped
+     * @param mixed $headers - Reserved characters in values MUST NOT be escaped
      * @access public
      * @return void
+     *
+     * @throws AWeberAPIException
      */
     public function makeRequest($method, $url, $data=array(), $headers=array()) {
 
@@ -450,7 +456,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
 
         switch (strtoupper($method)) {
             case 'POST':
-                $oauth = $this->prepareRequest($method, $url, $data);
+                $oauth = $this->prepareRequest($method, $url, in_array("Content-Type: application/json", $headers) ? array() : $data);
                 $resp = $this->post($url, $oauth, $data, $headers);
                 break;
 

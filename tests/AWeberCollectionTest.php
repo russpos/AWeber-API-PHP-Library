@@ -18,6 +18,60 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test to ensure that the nested objects, such as "custom_fields", are formatted correctly for GET request.  The
+     * nested objects should be a JSON encoded string.
+     */
+    public function testFormatOfGetData() {
+        $findParams = array('custom_fields' => array('test' => 'test'));
+        $expectedFindData = array('ws.op' => 'find', 'custom_fields' => '{"test":"test"}');
+
+        $this->adapter->clearRequests();
+
+        $resp = $this->subscribers->find($findParams);
+
+        $req = $this->adapter->requestsMade[0];
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($req['data'], $expectedFindData);
+        $this->assertEmpty($req['headers'], "Find request shouldn't have a Content-Type header");
+    }
+
+    /**
+     * Checks that the nested objects, such as "custom_fields", are formatted correctly.  The "create" method
+     * is a POST with Content-Type of 'application/json'.  The data should be formatted as JSON.
+     */
+    public function testFormatOfPostData() {
+
+        $createParams = array(
+            'email' => 'test@example.com',
+            'ip_address' => '127.0.0.1',
+            'name' => 'John Doe',
+            'custom_fields' => array(
+                'custom' => 'test'
+            )
+        );
+
+        $expectedCreateParams = array(
+            'ws.op' => 'create',
+            'email' => 'test@example.com',
+            'ip_address' => '127.0.0.1',
+            'name' => 'John Doe',
+            'custom_fields' => array(
+                'custom' => 'test'
+            )
+        );
+
+        $this->adapter->clearRequests();
+
+        $resp = $this->subscribers->create($createParams);
+
+        $req = $this->adapter->requestsMade[0];
+        $this->assertEquals($req['method'], 'POST');
+        $this->assertEquals($req['data'], $expectedCreateParams);
+        $this->assertEquals(array('Content-Type: application/json'), $req['headers'], "Create request should have a Content-Type header");
+
+    }
+
+    /**
      * The find method makes two requests, one for the collection, and the other to get total_size.
      */
     public function testShouldInitiallyMake2APIRequests() {

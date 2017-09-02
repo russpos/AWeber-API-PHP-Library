@@ -269,6 +269,26 @@ class TestAccountFindSubscribers extends AccountTestCase {
         $this->assertEquals($subscribers->data['entries'][0]['self_link'],
                            'https://api.aweber.com/1.0/accounts/1/lists/303449/subscribers/1');
     }
+
+    /**
+     * Test to ensure that the nested objects, such as "custom_fields", are formatted correctly for GET request.  The
+     * nested objects should be a JSON encoded string.
+     */
+    public function testShouldFormatFindSubscribersParameters() {
+
+        $findSubscribersParameters = array('email' => 'joe@example.com', 'custom_fields' => array('test' => 'test'));
+        $expectedFindSubscribersParameters = array('email' => 'joe@example.com', 'custom_fields' => '{"test":"test"}', 'ws.op' => 'findSubscribers');
+
+        $subscribers = $this->entry->findSubscribers($findSubscribersParameters);
+
+        $req = $this->adapter->requestsMade[1];
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($req['data'], $expectedFindSubscribersParameters, "Request data should be formatted properly.");
+
+        print_r($req['data']);
+
+    }
+
 }
 
 class TestAWeberSubscriberEntry extends PHPUnit_Framework_TestCase {
@@ -363,7 +383,7 @@ class TestAWeberMoveEntry extends PHPUnit_Framework_TestCase {
          $this->assertEquals($req['data'], array(
              'ws.op' => 'move',
              'list_link' => $this->different_list->self_link));
-        $this->assertEmpty($req['headers'], "Move request shouldn't have a Content-Type header");
+         $this->assertEmpty($req['headers'], "Move request shouldn't have a Content-Type header");
 
          $req = $this->adapter->requestsMade[1];
          $this->assertEquals($req['method'], 'GET');

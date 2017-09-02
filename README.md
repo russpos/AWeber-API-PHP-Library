@@ -61,6 +61,9 @@ subscriber information.
 
 Changelog:
 ----------
+2017-09-02: v1.1.18
+  * Fixing issues on the formatting of nested objects on 'application/json' requests
+  
 2017-08-21: v1.1.17
   * Fixing UTF-8 issues on creates
   
