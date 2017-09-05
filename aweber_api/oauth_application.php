@@ -462,7 +462,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
 
             case 'GET':
                 $oauth = $this->prepareRequest($method, $url, $data);
-                $resp = $this->get($url, $oauth, $data, $headers);
+                $resp = $this->get($url, $oauth, $headers);
                 break;
 
             case 'DELETE':
