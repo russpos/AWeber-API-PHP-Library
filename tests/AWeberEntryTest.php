@@ -285,8 +285,6 @@ class TestAccountFindSubscribers extends AccountTestCase {
         $this->assertEquals($req['method'], 'GET');
         $this->assertEquals($req['data'], $expectedFindSubscribersParameters, "Request data should be formatted properly.");
 
-        print_r($req['data']);
-
     }
 
 }

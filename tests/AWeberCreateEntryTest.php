@@ -18,17 +18,22 @@ class TestAWeberCreateEntry extends PHPUnit_Framework_TestCase {
         $data = $this->adapter->request('GET', $url);
         $this->custom_fields = new AWeberCollection($data, $url, $this->adapter);
 
+        $subscribers_url = '/accounts/1/lists/303449/subscribers';
+        $this->subscribers = new AWeberCollection(
+            $this->adapter->request('GET', $subscribers_url),
+            $subscribers_url,
+            $this->adapter);
     }
 
     /**
-     * Create Success
+     * Create Custom Field Success
      * 
      * A unit test of a successful call to the Collection create method. 
      * Testing is limited to the Collection module; the OAuthAdapater 
      * module that handles the communications with the AWeber Public 
      * API Web Service is stubbed out.
      */
-    public function testCreateSuccess() {
+    public function testCreateCustomFieldSuccess() {
 
          $this->adapter->clearRequests();
          $resp = $this->custom_fields->create(array('name' => 'AwesomeField'));
@@ -42,14 +47,43 @@ class TestAWeberCreateEntry extends PHPUnit_Framework_TestCase {
          $this->assertEquals($req['data'], array(
              'ws.op' => 'create',
              'name' => 'AwesomeField'));
-         $this->assertEquals(array('Content-Type: application/json'), $req['headers'], "Create request should have a Content-Type header");
+         $this->assertEmpty($req['headers'], "Custom Field create request should have a Content-Type header");
 
          $req = $this->adapter->requestsMade[1];
          $this->assertEquals($req['method'], 'GET');
          $this->assertEquals($req['uri'], '/accounts/1/lists/303449/custom_fields/2');
          $this->assertEmpty($req['headers'], "Get Custom fields request shouldn't have a Content-Type header");
      }
-    
+
+    /**
+     * Create Success
+     *
+     * A unit test of a successful call to the Collection create method.
+     * Testing is limited to the Collection module; the OAuthAdapater
+     * module that handles the communications with the AWeber Public
+     * API Web Service is stubbed out.
+     */
+    public function testCreateSubscriberSuccess() {
+
+        $this->adapter->clearRequests();
+        $resp = $this->subscribers->create(array('email' => 'test@test.com'));
+
+
+        $this->assertEquals(sizeOf($this->adapter->requestsMade), 2);
+
+        $req = $this->adapter->requestsMade[0];
+        $this->assertEquals($req['method'], 'POST');
+        $this->assertEquals($req['data'], array(
+            'ws.op' => 'create',
+            'email' => 'test@test.com'));
+        $this->assertEquals(array('Content-Type: application/json'), $req['headers'], "Create request should have a Content-Type header");
+
+        $req = $this->adapter->requestsMade[1];
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($req['uri'], '/accounts/1/lists/303449/subscribers/3');
+        $this->assertEmpty($req['headers'], "Get subscriber request shouldn't have a Content-Type header");
+    }
+
     /**
      * Create Success With Adapter
      * 
