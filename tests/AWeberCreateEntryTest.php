@@ -43,7 +43,7 @@ class TestAWeberCreateEntry extends PHPUnit_Framework_TestCase {
 
          $req = $this->adapter->requestsMade[0];
          $this->assertEquals($req['method'], 'POST');
-         $this->assertEquals($req['uri'], $this->custom_fields->url);
+         $this->assertEquals($req['uri'], '/accounts/1/lists/303449/custom_fields?name=AwesomeField&ws.op=create');
          $this->assertEquals($req['data'], array(
              'ws.op' => 'create',
              'name' => 'AwesomeField'));

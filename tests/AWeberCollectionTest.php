@@ -23,7 +23,7 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
      */
     public function testFormatOfGetData() {
         $findParams = array('custom_fields' => array('test' => 'test'));
-        $expectedFindData = array('ws.op' => 'find', 'custom_fields' => '{"test":"test"}');
+        $expectedUri = '/accounts/1/lists/303449/subscribers?custom_fields=%7B%22test%22%3A%22test%22%7D&ws.op=find';
 
         $this->adapter->clearRequests();
 
@@ -31,7 +31,7 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
 
         $req = $this->adapter->requestsMade[0];
         $this->assertEquals($req['method'], 'GET');
-        $this->assertEquals($req['data'], $expectedFindData);
+        $this->assertEquals($expectedUri, $req['uri']);
         $this->assertEmpty($req['headers'], "Find request shouldn't have a Content-Type header");
     }
 
@@ -84,7 +84,7 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
     public function testShouldRequestCollectionPageFirst() {
         #$this->subscribers->find($this->params);
         $uri = $this->adapter->requestsMade[0]['uri'];
-        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=0&ws.op=find');
+        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.size=1&ws.start=0');
     }
 
     /**
@@ -92,7 +92,7 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
      */
     public function testShouldRequestTotalSizePageSecond() {
         $uri = $this->adapter->requestsMade[1]['uri'];
-        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=0&ws.op=find&ws.show=total_size');
+        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.show=total_size&ws.size=1&ws.start=0');
     }
 
     /**
@@ -111,7 +111,7 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
         $this->adapter->clearRequests();
         $subscriber = $this->found[1];
         $uri = $this->adapter->requestsMade[0]['uri'];
-        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=1&ws.op=find');
+        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.size=1&ws.start=1');
     }
 
     /**
