@@ -446,23 +446,23 @@ class OAuthApplication implements AWeberOAuthAdapter {
 
         if ($this->debug) echo "\n** {$method}: $url\n";
 
-        list($url_params, $request_body) = $this->formatRequestData($method, $url, $data, $headers);
+        list($urlParams, $requestBody) = $this->formatRequestData($method, $url, $data, $headers);
 
         switch (strtoupper($method)) {
             case 'POST':
-                $resp = $this->post($url, $url_params, $request_body, $headers);
+                $resp = $this->post($url, $urlParams, $requestBody, $headers);
                 break;
 
             case 'GET':
-                $resp = $this->get($url, $url_params, $headers);
+                $resp = $this->get($url, $urlParams, $headers);
                 break;
 
             case 'DELETE':
-                $resp = $this->delete($url, $url_params, $headers);
+                $resp = $this->delete($url, $urlParams, $headers);
                 break;
 
             case 'PATCH':
-                $resp  = $this->patch($url, $url_params, $request_body, $headers);
+                $resp  = $this->patch($url, $urlParams, $requestBody, $headers);
                 break;
         }
 
@@ -654,7 +654,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * Return True if headers array does not contain 'Content-Type: application/json' and is a POST, GET, or DELETE request
      */
     protected function needsUrlFormatting($method, $headers) {
-        return !in_array("Content-Type: application/json", $headers) and ($method == 'POST' or $method == 'GET' or 'DELETE');
+        return !in_array("Content-Type: application/json", $headers) && in_array($method, array('POST', 'GET', 'DELETE'));
     }
 
     /**
@@ -673,13 +673,13 @@ class OAuthApplication implements AWeberOAuthAdapter {
                     $data[$key] = json_encode($value);
                 }
             }
-            $url_params = $this->buildData($this->prepareRequest($method, $url, $data));
-            $request_body = $this->buildData($data);
+            $urlParams = $this->buildData($this->prepareRequest($method, $url, $data));
+            $requestBody = $this->buildData($data);
         } else {
-            $url_params = $this->buildData($this->prepareRequest($method, $url, array()));
-            $request_body = json_encode($data);
+            $urlParams = $this->buildData($this->prepareRequest($method, $url, array()));
+            $requestBody = json_encode($data);
         }
-        return array($url_params, $request_body);
+        return array($urlParams, $requestBody);
     }
 
 }

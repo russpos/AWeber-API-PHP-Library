@@ -65,7 +65,7 @@ class AWeberResponse extends AWeberAPIBase {
         if (array_key_exists($value, $this->data)) {
             return $this->data[$value];
         }
-        if ($value == 'type') return $this->_type();
+        if ($value == 'type') return $this->_getResourceType();
     }
 
 }
