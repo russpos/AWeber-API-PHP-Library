@@ -84,7 +84,7 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
     }
 
     /**
-     * _getResourceType
+     * _type
      *
      * Interpret what type of resources are held in this collection by
      * analyzing the URL
@@ -92,7 +92,7 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
      * @access protected
      * @return void
      */
-    protected function _getResourceType() {
+    protected function _type() {
         $urlParts = explode('/', $this->url);
         $type = array_pop($urlParts);
         return $type;
@@ -116,7 +116,7 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
     public function create($kv_pairs) {
         # Create Resource
         $params = array_merge(array('ws.op' => 'create'), $kv_pairs);
-        $headers = $this->_getResourceType() == 'custom_fields' ? array() : array('Content-Type: application/json');
+        $headers = $this->_type() == 'custom_fields' ? array() : array('Content-Type: application/json');
         $data = $this->adapter->request('POST', $this->url, $params, array('return' => 'headers'), $headers);
 
         # Return new Resource
