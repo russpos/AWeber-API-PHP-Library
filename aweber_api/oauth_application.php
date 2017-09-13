@@ -65,7 +65,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
 
     public $signatureMethod = 'HMAC-SHA1';
 
-    public $clientVersion = '1.1.17';
+    public $clientVersion = '1.1.18';
 
     public $oAuthVersion = '1.0';
 
@@ -86,7 +86,8 @@ class OAuthApplication implements AWeberOAuthAdapter {
      *
      * Create a new OAuthApplication, based on an OAuthServiceProvider
      * @access public
-     * @return void
+     * @param bool $parentApp
+     * @throws Exception
      */
     public function __construct($parentApp = false) {
         if ($parentApp) {
@@ -116,14 +117,6 @@ class OAuthApplication implements AWeberOAuthAdapter {
         $uri = $this->app->removeBaseUri($uri);
         $url = $this->app->getBaseUri() . $uri;
 
-        # WARNING: non-primative items in data must be json serialized in GET and POST.
-        if ($method == 'POST' or $method == 'GET') {
-            foreach ($data as $key => $value) {
-                if (is_array($value)) {
-                    $data[$key] = json_encode($value);
-                }
-            }
-        }
 
         $response = $this->makeRequest($method, $url, $data, $headers);
         if (!empty($options['return'])) {
@@ -171,6 +164,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
      *
      * @access public
      * @return void
+     * @throws AWeberOAuthDataMissing
      */
     public function getAccessToken() {
         $resp = $this->makeRequest('POST', $this->app->getAccessTokenUrl(),
@@ -212,10 +206,11 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * Enforce that all the fields in requiredFields are present and not
      * empty in data.  If a required field is empty, throw an exception.
      *
-     * @param mixed $data               Array of data
-     * @param mixed $requiredFields     Array of required field names.
-     * @access protected
+     * @param mixed $data Array of data
+     * @param mixed $requiredFields Array of required field names.
      * @return void
+     * @throws AWeberOAuthDataMissing
+     * @access protected
      */
     protected function requiredFromResponse($data, $requiredFields) {
         foreach ($requiredFields as $field) {
@@ -229,14 +224,14 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * get
      *
      * Make a get request.  Used to exchange user tokens with serice provider.
-     * @param mixed $url        URL to make a get request from.
-     * @param array $data       Data for the request.
-     * @param mixed $headers    Headers for the request
+     * @param mixed $url         URL to make a get request from.
+     * @param String $url_params  URL parameter string
+     * @param mixed $headers     Headers for the request
      * @access protected
      * @return void
      */
-    protected function get($url, $data, $headers) {
-        $url = $this->_addParametersToUrl($url, $data);
+    protected function get($url, $url_params, $headers = array()) {
+        $url = $this->_addParametersToUrl($url, $url_params);
         $handle = $this->curl->init($url);
         $resp = $this->_sendRequest($handle, $headers);
         return $resp;
@@ -248,7 +243,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * Adds the parameters in associative array $data to the
      * given URL
      * @param String $url       URL
-     * @param array $data       Parameters to be added as a query string to
+     * @param String $data      Parameters to be added as a query string to
      *      the URL provided
      * @access protected
      * @return void
@@ -256,9 +251,9 @@ class OAuthApplication implements AWeberOAuthAdapter {
     protected function _addParametersToUrl($url, $data) {
         if (!empty($data)) {
             if (strpos($url, '?') === false) {
-                $url .= '?'.$this->buildData($data);
+                $url .= '?' . $data;
             } else {
-                $url .= '&'.$this->buildData($data);
+                $url .= '&' . $data;
             }
         }
         return $url;
@@ -441,32 +436,34 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @param mixed $method
      * @param mixed $url  - Reserved characters in query params MUST be escaped
      * @param mixed $data - Reserved characters in values MUST NOT be escaped
+     * @param mixed $headers - Reserved characters in values MUST NOT be escaped
      * @access public
      * @return void
+     *
+     * @throws AWeberAPIException
      */
     public function makeRequest($method, $url, $data=array(), $headers=array()) {
 
         if ($this->debug) echo "\n** {$method}: $url\n";
 
+        list($urlParams, $requestBody) = $this->formatRequestData($method, $url, $data, $headers);
+
         switch (strtoupper($method)) {
             case 'POST':
-                $oauth = $this->prepareRequest($method, $url, $data);
-                $resp = $this->post($url, $oauth, $data, $headers);
+                $resp = $this->post($url, $urlParams, $requestBody, $headers);
                 break;
 
             case 'GET':
-                $oauth = $this->prepareRequest($method, $url, $data);
-                $resp = $this->get($url, $oauth, $data, $headers);
+                $resp = $this->get($url, $urlParams, $headers);
                 break;
 
             case 'DELETE':
-                $oauth = $this->prepareRequest($method, $url, $data);
-                $resp = $this->delete($url, $oauth, $headers);
+                $resp = $this->delete($url, $urlParams, $headers);
                 break;
 
             case 'PATCH':
-                $oauth = $this->prepareRequest($method, $url, array());
-                $resp  = $this->patch($url, $oauth, $data, $headers);
+                $headers = $this->_ensureContentType($headers, 'application/json');
+                $resp  = $this->patch($url, $urlParams, $requestBody, $headers);
                 break;
         }
 
@@ -495,21 +492,22 @@ class OAuthApplication implements AWeberOAuthAdapter {
     }
 
     /**
-     * put
+     * patch
      *
-     * Prepare an OAuth put method.
+     * Prepare an OAuth patch method.
      *
-     * @param mixed $url     URL where we are making the request to
-     * @param mixed $data    Data that is used to make the request
-     * @param mixed $headers Headers for the request
+     * @param mixed $url           URL where we are making the request to
+     * @param mixed $url_params    URL parameter string
+     * @param mixed $post_field    Data that is used to make the request
+     * @param mixed $headers       Headers for the request
      * @access protected
      * @return void
      */
-    protected function patch($url, $oauth, $data, $headers) {
-        $url = $this->_addParametersToUrl($url, $oauth);
+    protected function patch($url, $url_params, $post_field, $headers = array()) {
+        $url = $this->_addParametersToUrl($url, $url_params);
         $handle = $this->curl->init($url);
         $this->curl->setopt($handle, CURLOPT_CUSTOMREQUEST, 'PATCH');
-        $this->curl->setopt($handle, CURLOPT_POSTFIELDS, json_encode($data));
+        $this->curl->setopt($handle, CURLOPT_POSTFIELDS, $post_field);
         $resp = $this->_sendRequest($handle, $headers);
         return $resp;
     }
@@ -519,18 +517,18 @@ class OAuthApplication implements AWeberOAuthAdapter {
      *
      * Prepare an OAuth post method.
      *
-     * @param mixed $url     URL where we are making the request to
-     * @param mixed $data    Data that is used to make the request
-     * @param mixed $headers Headers for the request
+     * @param mixed $url           URL where we are making the request to
+     * @param mixed $url_params    URL parameter string
+     * @param mixed $post_field  Data that is used to make the request
+     * @param mixed $headers       Headers for the request
      * @access protected
      * @return void
      */
-    protected function post($url, $oauth, $data, $headers = array()) {
-        $url = $this->_addParametersToUrl($url, $oauth);
+    protected function post($url, $url_params, $post_field, $headers = array()) {
+        $url = $this->_addParametersToUrl($url, $url_params);
         $handle = $this->curl->init($url);
         $this->curl->setopt($handle, CURLOPT_POST, true);
-        $postData = in_array("Content-Type: application/json", $headers) ? json_encode($data) : $this->buildData($data);
-        $this->curl->setopt($handle, CURLOPT_POSTFIELDS, $postData);
+        $this->curl->setopt($handle, CURLOPT_POSTFIELDS, $post_field);
         $resp = $this->_sendRequest($handle, $headers);
         return $resp;
     }
@@ -540,13 +538,13 @@ class OAuthApplication implements AWeberOAuthAdapter {
      *
      * Makes a DELETE request
      * @param mixed $url        URL where we are making the request to
-     * @param mixed $data       Data that is used in the request
+     * @param mixed $url_params URL parameter string
      * @param mixed $headers    Headers for the request
      * @access protected
      * @return void
      */
-    protected function delete($url, $data, $headers = array()) {
-        $url = $this->_addParametersToUrl($url, $data);
+    protected function delete($url, $url_params, $headers = array()) {
+        $url = $this->_addParametersToUrl($url, $url_params);
         $handle = $this->curl->init($url);
         $this->curl->setopt($handle, CURLOPT_CUSTOMREQUEST, 'DELETE');
         $resp = $this->_sendRequest($handle, $headers);
@@ -647,6 +645,63 @@ class OAuthApplication implements AWeberOAuthAdapter {
      */
     protected function userAgent() {
         return $this->userAgentTitle . $this->clientVersion . ' PHP/' . PHP_VERSION . ' ' . php_uname('m') . '-' . strtolower(php_uname('s')) . '-'.  php_uname('r');
+    }
+
+    /**
+     * @param $method
+     * @param $headers
+     * @return bool
+     *
+     * Return True if headers array does not contain 'Content-Type: application/json' and is a POST, GET, or DELETE request
+     */
+    protected function needsUrlFormatting($method, $headers) {
+        return !in_array("Content-Type: application/json", $headers) && in_array($method, array('POST', 'GET', 'DELETE'));
+    }
+
+    /**
+     * @param $method
+     * @param $url
+     * @param $data
+     * @param $headers
+     * @return array
+     */
+    protected function formatRequestData($method, $url, $data, $headers)
+    {
+        # WARNING: If not being sent as json, non-primitive items in data must be json serialized in GET and POST.
+        if ($this->needsUrlFormatting($method, $headers)) {
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    $data[$key] = json_encode($value);
+                }
+            }
+            $urlParams = $this->buildData($this->prepareRequest($method, $url, $data));
+            $requestBody = $this->buildData($data);
+        } else {
+            $urlParams = $this->buildData($this->prepareRequest($method, $url, array()));
+            $requestBody = json_encode($data);
+        }
+        return array($urlParams, $requestBody);
+    }
+
+    /**
+     * Checks the $headers array for content-type and adds the header if it doesn't exist and replaces it if isn't
+     * what is passed.
+     *
+     * @param $headers
+     * @param $expectedContentType
+     * @return array
+     */
+    private function _ensureContentType($headers, $expectedContentType) {
+
+        foreach ($headers as $key => $value) {
+            if ( stripos($value, 'content-type:') !== false ) {
+                    unset($headers[$key]);
+            }
+
+        }
+
+        $headers[] = 'Content-Type: ' . $expectedContentType;
+        return $headers;
     }
 
 }

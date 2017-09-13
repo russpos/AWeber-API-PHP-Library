@@ -116,7 +116,8 @@ class AWeberCollection extends AWeberResponse implements ArrayAccess, Iterator, 
     public function create($kv_pairs) {
         # Create Resource
         $params = array_merge(array('ws.op' => 'create'), $kv_pairs);
-        $data = $this->adapter->request('POST', $this->url, $params, array('return' => 'headers'),  array('Content-Type: application/json'));
+        $headers = $this->_type() == 'custom_fields' ? array() : array('Content-Type: application/json');
+        $data = $this->adapter->request('POST', $this->url, $params, array('return' => 'headers'), $headers);
 
         # Return new Resource
         $url = $data['Location'];

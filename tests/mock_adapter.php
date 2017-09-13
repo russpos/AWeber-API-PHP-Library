@@ -30,7 +30,8 @@ $map['GET'   ]['/accounts/1/lists/303449/subscribers?email=someone%40example.com
 $map['GET'   ]['/accounts/1/lists/303449/subscribers?email=someone%40example.com&ws.op=find'                    ] = array(200, 'subscribers/find');
 $map['GET'   ]['/accounts/1/lists/505454'                                                                       ] = array(200, 'lists/505454');
 $map['GET'   ]['/accounts/1/lists/505454/subscribers/3'                                                         ] = array(200, 'subscribers/3');
-$map['GET'   ]['/accounts/1/lists?ws.start=20&ws.size=20'                                                       ] = array(200, 'lists/page2');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers/3'                                                         ] = array(200, 'subscribers/3');
+$map['GET'   ]['/accounts/1/lists?ws.size=20&ws.start=20'                                                       ] = array(200, 'lists/page2');
 $map['GET'   ]['/accounts/1?email=joe%40example.com&ws.op=findSubscribers&ws.show=total_size'                   ] = array(200, 'accounts/findSubscribers_ts');
 $map['GET'   ]['/accounts/1?email=joe%40example.com&ws.op=findSubscribers'                                      ] = array(200, 'accounts/findSubscribers');
 $map['GET'   ]['/accounts/1?ws.op=getWebFormSplitTests'                                                         ] = array(200, 'accounts/webFormSplitTests');
@@ -39,18 +40,25 @@ $map['GET'   ]['/accounts/1/lists/303449/subscribers?email=someone%40example.com
 $map['GET'   ]['/accounts/1/lists/303449/broadcasts/1337'                                                       ] = array(200, 'broadcasts/1337');
 
 # collection pagination tests
-$map['GET'   ]['/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=0&ws.op=find'                   ] = array(200, 'subscribers/find_1of2');
-$map['GET'   ]['/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=1&ws.op=find'                   ] = array(200, 'subscribers/find_2of2');
-$map['GET'   ]['/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=0&ws.op=find&ws.show=total_size'] = array(200, 'subscribers/find_1of2_tsl');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.size=1&ws.start=0'                   ] = array(200, 'subscribers/find_1of2');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.size=1&ws.start=1'                   ] = array(200, 'subscribers/find_2of2');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.show=total_size&ws.size=1&ws.start=0'] = array(200, 'subscribers/find_1of2_tsl');
 
 $map['PATCH' ]['/accounts/1/lists/303449'                                                                       ] = array(209, 'lists/303449');
 $map['PATCH' ]['/accounts/1/lists/303449/subscribers/1'                                                         ] = array(209, 'subscribers/1');
 $map['PATCH' ]['/accounts/1/lists/505454'                                                                       ] = array(404, 'error');
 
-$map['POST'  ]['/accounts/1/lists/303449/custom_fields'                                                         ] = array(201, '/accounts/1/lists/303449/custom_fields/2');
-$map['POST'  ]['/accounts/1/lists/303449/subscribers/1'                                                         ] = array(201, '/accounts/1/lists/505454/subscribers/3');
-$map['POST'  ]['/accounts/1/lists/303449/subscribers/2'                                                         ] = array(400, 'error');
+$map['POST'  ]['/accounts/1/lists/303449/custom_fields?name=AwesomeField&ws.op=create'                          ] = array(201, '/accounts/1/lists/303449/custom_fields/2');
+$map['POST'  ]['/accounts/1/lists/303449/subscribers/1?list_link=https%3A%2F%2Fapi.aweber.com%2F1.0%2Faccounts%2F1%2Flists%2F505454&ws.op=move'                                                         ] = array(201, '/accounts/1/lists/505454/subscribers/3');
+$map['POST'  ]['/accounts/1/lists/303449/subscribers/1?last_followup_message_number_sent=1&list_link=https%3A%2F%2Fapi.aweber.com%2F1.0%2Faccounts%2F1%2Flists%2F505454&ws.op=move'                     ] = array(201, '/accounts/1/lists/505454/subscribers/3');
+$map['POST'  ]['/accounts/1/lists/303449/subscribers/2?list_link=https%3A%2F%2Fapi.aweber.com%2F1.0%2Faccounts%2F1%2Flists%2F505454&ws.op=move'                                                         ] = array(400, 'error');
 
+# Entity Body formatting
+$map['POST'  ]['/accounts/1/lists/303449/subscribers'                                                                                          ] = array(201, '/accounts/1/lists/303449/subscribers/3');
+$map['GET'   ]['/accounts/1?custom_fields=%7B%22test%22%3A%22test%22%7D&email=joe%40example.com&ws.op=findSubscribers&ws.show=total_size'      ] = array(200, 'accounts/findSubscribers_ts');
+$map['GET'   ]['/accounts/1?custom_fields=%7B%22test%22%3A%22test%22%7D&email=joe%40example.com&ws.op=findSubscribers'                         ] = array(200, 'accounts/findSubscribers');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?custom_fields=%7B%22test%22%3A%22test%22%7D&ws.op=find'                                   ] = array(200, 'subscribers/find_1of2');
+$map['GET'   ]['/accounts/1/lists/303449/subscribers?custom_fields=%7B%22test%22%3A%22test%22%7D&ws.op=find&ws.show=total_size'                ] = array(200, 'subscribers/find_1of2_tsl');
 
 class MockOAuthAdapter extends OAuthApplication {
 
@@ -68,14 +76,23 @@ class MockOAuthAdapter extends OAuthApplication {
         $this->requestsMade = array();
     }
 
+    /*
+     * Overriding parent to prevent the addition of the OAuth parameters
+     */
+    public function prepareRequest($method, $url, $data)
+    {
+        return $data;
+    }
+
     public function makeRequest($method, $url, $data=array(), $headers=array()) {
         global $map;
 
         # append params to url (for fixtures)
         $uri = str_replace($this->app->baseUri, '', $url);
-        if ($method == 'GET' && !empty($data)) {
-            $uri = $uri.'?'. http_build_query($data);
-        }
+
+        list($url_params, $request_body) = $this->formatRequestData($method, $uri, $data, $headers);
+
+        $uri = $this->_addParametersToUrl($uri, $url_params);
 
         # extract response map parameters
         #

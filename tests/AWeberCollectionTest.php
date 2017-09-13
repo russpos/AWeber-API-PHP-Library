@@ -18,6 +18,60 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test to ensure that the nested objects, such as "custom_fields", are formatted correctly for GET request.  The
+     * nested objects should be a JSON encoded string.
+     */
+    public function testFormatOfGetData() {
+        $findParams = array('custom_fields' => array('test' => 'test'));
+        $expectedUri = '/accounts/1/lists/303449/subscribers?custom_fields=%7B%22test%22%3A%22test%22%7D&ws.op=find';
+
+        $this->adapter->clearRequests();
+
+        $resp = $this->subscribers->find($findParams);
+
+        $req = $this->adapter->requestsMade[0];
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($expectedUri, $req['uri']);
+        $this->assertEmpty($req['headers'], "Find request shouldn't have a Content-Type header");
+    }
+
+    /**
+     * Checks that the nested objects, such as "custom_fields", are formatted correctly.  The "create" method
+     * is a POST with Content-Type of 'application/json'.  The data should be formatted as JSON.
+     */
+    public function testFormatOfPostData() {
+
+        $createParams = array(
+            'email' => 'test@example.com',
+            'ip_address' => '127.0.0.1',
+            'name' => 'John Doe',
+            'custom_fields' => array(
+                'custom' => 'test'
+            )
+        );
+
+        $expectedCreateParams = array(
+            'ws.op' => 'create',
+            'email' => 'test@example.com',
+            'ip_address' => '127.0.0.1',
+            'name' => 'John Doe',
+            'custom_fields' => array(
+                'custom' => 'test'
+            )
+        );
+
+        $this->adapter->clearRequests();
+
+        $resp = $this->subscribers->create($createParams);
+
+        $req = $this->adapter->requestsMade[0];
+        $this->assertEquals($req['method'], 'POST');
+        $this->assertEquals($req['data'], $expectedCreateParams);
+        $this->assertEquals(array('Content-Type: application/json'), $req['headers'], "Create request should have a Content-Type header");
+
+    }
+
+    /**
      * The find method makes two requests, one for the collection, and the other to get total_size.
      */
     public function testShouldInitiallyMake2APIRequests() {
@@ -30,7 +84,7 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
     public function testShouldRequestCollectionPageFirst() {
         #$this->subscribers->find($this->params);
         $uri = $this->adapter->requestsMade[0]['uri'];
-        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=0&ws.op=find');
+        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.size=1&ws.start=0');
     }
 
     /**
@@ -38,7 +92,7 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
      */
     public function testShouldRequestTotalSizePageSecond() {
         $uri = $this->adapter->requestsMade[1]['uri'];
-        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=0&ws.op=find&ws.show=total_size');
+        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.show=total_size&ws.size=1&ws.start=0');
     }
 
     /**
@@ -57,7 +111,7 @@ class TestFindCollection extends PHPUnit_Framework_TestCase {
         $this->adapter->clearRequests();
         $subscriber = $this->found[1];
         $uri = $this->adapter->requestsMade[0]['uri'];
-        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.size=1&ws.start=1&ws.op=find');
+        $this->assertEquals($uri, '/accounts/1/lists/303449/subscribers?status=unsubscribed&ws.op=find&ws.size=1&ws.start=1');
     }
 
     /**

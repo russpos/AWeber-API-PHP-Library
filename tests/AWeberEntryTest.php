@@ -269,6 +269,24 @@ class TestAccountFindSubscribers extends AccountTestCase {
         $this->assertEquals($subscribers->data['entries'][0]['self_link'],
                            'https://api.aweber.com/1.0/accounts/1/lists/303449/subscribers/1');
     }
+
+    /**
+     * Test to ensure that the nested objects, such as "custom_fields", are formatted correctly for GET request.  The
+     * nested objects should be a JSON encoded string.
+     */
+    public function testShouldFormatFindSubscribersParameters() {
+
+        $findSubscribersParameters = array('email' => 'joe@example.com', 'custom_fields' => array('test' => 'test'));
+        $expectedFindSubscribersUri = '/accounts/1?custom_fields=%7B%22test%22%3A%22test%22%7D&email=joe%40example.com&ws.op=findSubscribers';
+
+        $subscribers = $this->entry->findSubscribers($findSubscribersParameters);
+
+        $req = $this->adapter->requestsMade[1];
+        $this->assertEquals($req['method'], 'GET');
+        $this->assertEquals($expectedFindSubscribersUri, $req['uri'],"Request data should be formatted properly.");
+
+    }
+
 }
 
 class TestAWeberSubscriberEntry extends PHPUnit_Framework_TestCase {
@@ -359,11 +377,11 @@ class TestAWeberMoveEntry extends PHPUnit_Framework_TestCase {
 
          $req = $this->adapter->requestsMade[0];
          $this->assertEquals($req['method'], 'POST');
-         $this->assertEquals($req['uri'], $this->subscriber->url);
+         $this->assertEquals($req['uri'], '/accounts/1/lists/303449/subscribers/1?list_link=https%3A%2F%2Fapi.aweber.com%2F1.0%2Faccounts%2F1%2Flists%2F505454&ws.op=move');
          $this->assertEquals($req['data'], array(
              'ws.op' => 'move',
              'list_link' => $this->different_list->self_link));
-        $this->assertEmpty($req['headers'], "Move request shouldn't have a Content-Type header");
+         $this->assertEmpty($req['headers'], "Move request shouldn't have a Content-Type header");
 
          $req = $this->adapter->requestsMade[1];
          $this->assertEquals($req['method'], 'GET');
@@ -402,7 +420,7 @@ class TestAWeberMoveEntry extends PHPUnit_Framework_TestCase {
 
          $req = $this->adapter->requestsMade[0];
          $this->assertEquals($req['method'], 'POST');
-         $this->assertEquals($req['uri'], $this->subscriber->url);
+         $this->assertEquals($req['uri'], '/accounts/1/lists/303449/subscribers/1?last_followup_message_number_sent=1&list_link=https%3A%2F%2Fapi.aweber.com%2F1.0%2Faccounts%2F1%2Flists%2F505454&ws.op=move');
          $this->assertEquals($req['data'], array(
              'ws.op' => 'move',
              'list_link' => $this->different_list->self_link,
