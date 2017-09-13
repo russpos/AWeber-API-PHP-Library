@@ -64,8 +64,7 @@ Changelog:
 2017-09-02: v1.1.18
   * Fixing issues on the formatting of nested objects on 'application/json' requests
   * Fixing issue with extra data being sent in header.
-  * Fixing issue to allow the creation of custom fields to be sent as form encoded. 
-  * Updating the deprecated getMock method to createMock. 
+  * Fixing issue to allow the creation of custom fields to be sent as form encoded.  
   
 2017-08-21: v1.1.17
   * Fixing UTF-8 issues on creates
