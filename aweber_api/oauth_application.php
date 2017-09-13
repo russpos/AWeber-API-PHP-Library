@@ -462,7 +462,7 @@ class OAuthApplication implements AWeberOAuthAdapter {
                 break;
 
             case 'PATCH':
-                $headers = $this->ensureContentType($headers, 'application/json');
+                $headers = $this->_ensureContentType($headers, 'application/json');
                 $resp  = $this->patch($url, $urlParams, $requestBody, $headers);
                 break;
         }
@@ -691,28 +691,16 @@ class OAuthApplication implements AWeberOAuthAdapter {
      * @param $expectedContentType
      * @return array
      */
-    private function ensureContentType($headers, $expectedContentType) {
-        $found = false;
-        $stringStart = 0;
-        $stringLength = 13;
-        $explodeLimit = 1;
+    private function _ensureContentType($headers, $expectedContentType) {
 
         foreach ($headers as $key => $value) {
-            if (substr(strtolower($value), $stringStart, $stringLength) == "content-type:") {
-                list($contentType) = explode(";", trim(substr($value, 14)), $explodeLimit);
-                if ($expectedContentType == $contentType){
-                    $found = true;
-                } else {
-                    $found = true;
+            if ( stripos($value, 'content-type:') !== false ) {
                     unset($headers[$key]);
-                    array_push($headers, 'Content-Type: ' .$expectedContentType);
-                }
             }
+
         }
 
-        if (!$found) {
-            array_push($headers, 'Content-Type: ' .$expectedContentType);
-        }
+        $headers[] = 'Content-Type: ' . $expectedContentType;
         return $headers;
     }
 
