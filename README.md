@@ -1,3 +1,8 @@
+# This client library has been deprecated.
+### This library will no longer be supported and does not support OAuth2. 
+### Please visit our [PHP Examples](https://github.com/aweber/public-api-examples/tree/master/php) as a reference. 
+----------------
+
 AWeber API PHP Library [![Build Status](https://secure.travis-ci.org/aweber/AWeber-API-PHP-Library.png?branch=master)](http://travis-ci.org/aweber/AWeber-API-PHP-Library)
 ======================
 
