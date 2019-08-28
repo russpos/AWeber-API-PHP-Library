@@ -1,4 +1,4 @@
-# This client library has been <span style="color: red">deprecated</span>.
+# This client library has been deprecated.
 ## This library will no longer be supported and does not support OAuth2.
 ## Please visit our [PHP Examples](https://github.com/aweber/public-api-examples/tree/master/php) as a reference.
 ----------------
